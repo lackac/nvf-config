@@ -1,6 +1,7 @@
 {
   imports = [
     ./options.nix
+    ./colorscheme.nix
   ];
 
   vim = {
