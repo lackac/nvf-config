@@ -3,6 +3,7 @@
     ./options.nix
     ./colorscheme.nix
     ./editing
+    ./navigation
   ];
 
   vim = {
