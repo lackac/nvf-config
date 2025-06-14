@@ -2,6 +2,7 @@
   imports = [
     ./options.nix
     ./colorscheme.nix
+    ./autocmds.nix
     ./editing
     ./navigation
   ];
