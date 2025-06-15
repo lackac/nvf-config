@@ -1,5 +1,4 @@
-{ lib, ... }:
-let
+{lib, ...}: let
   inherit (lib.nvim.binds) mkKeymap;
 in {
   vim.utility.oil-nvim = {
@@ -17,6 +16,10 @@ in {
   };
 
   vim.keymaps = [
-    (mkKeymap "n" "-" "function() require('oil').open() end" { desc = "Open parent directory"; lua = true; silent = true; })
+    (mkKeymap "n" "-" "function() require('oil').open() end" {
+      desc = "Open parent directory";
+      lua = true;
+      silent = true;
+    })
   ];
 }

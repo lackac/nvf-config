@@ -1,5 +1,4 @@
-{ lib, ... }:
-let
+{lib, ...}: let
   inherit (lib.nvim.binds) mkKeymap;
 in {
   vim.utility.yanky-nvim = {
