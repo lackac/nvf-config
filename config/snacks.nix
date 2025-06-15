@@ -77,6 +77,19 @@ in {
           Snacks.toggle.profiler_highlights():map("<leader>dph")
           Snacks.toggle.zen():map("<leader>uz")
           Snacks.toggle.zoom():map("<leader>wm"):map("<leader>uZ")
+
+          local tsc = require("treesitter-context")
+          Snacks.toggle({
+            name = "Treesitter Context",
+            get = tsc.enabled,
+            set = function(state)
+              if state then
+                tsc.enable()
+              else
+                tsc.disable()
+              end
+            end,
+          }):map("<leader>ut")
         end
       '';
     }

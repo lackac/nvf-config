@@ -7,6 +7,7 @@
     ./keymaps.nix
     ./editing
     ./navigation
+    ./languages
   ];
 
   vim = {
