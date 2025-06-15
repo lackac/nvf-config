@@ -185,14 +185,36 @@ in {
         lua = true;
       })
 
-    (mkKeymap "n" "[q" ''vim.cmd.cprev'' {
-      desc = "Previous Quickfix";
-      lua = true;
-    })
-    (mkKeymap "n" "]q" ''vim.cmd.cnext'' {
-      desc = "Next Quickfix";
-      lua = true;
-    })
+    (mkKeymap "n" "[q" ''
+        function()
+          if require("trouble").is_open() then
+            require("trouble").prev({ skip_groups = true, jump = true })
+          else
+            local ok, err = pcall(vim.cmd.cprev)
+            if not ok then
+              vim.notify(err, vim.log.levels.ERROR)
+            end
+          end
+        end
+      '' {
+        desc = "Previous Trouble/Quickfix Item";
+        lua = true;
+      })
+    (mkKeymap "n" "]q" ''
+        function()
+          if require("trouble").is_open() then
+            require("trouble").next({ skip_groups = true, jump = true })
+          else
+            local ok, err = pcall(vim.cmd.cnext)
+            if not ok then
+              vim.notify(err, vim.log.levels.ERROR)
+            end
+          end
+        end
+      '' {
+        desc = "Next Trouble/Quickfix Item";
+        lua = true;
+      })
 
     # diagnostic
     (mkKeymap "n" "<leader>cd" ''vim.diagnostic.open_float'' {
@@ -255,6 +277,14 @@ in {
         desc = "Inspect Tree";
         lua = true;
       })
+    (mkKeymap "n" "]]" ''function() Snacks.words.jump(vim.v.count1) end'' {
+      desc = "Next Reference";
+      lua = true;
+    })
+    (mkKeymap "n" "[[" ''function() Snacks.words.jump(-vim.v.count1) end'' {
+      desc = "Prev Reference";
+      lua = true;
+    })
 
     # windows
     (mkKeymap "n" "<leader>-" "<C-W>s" {

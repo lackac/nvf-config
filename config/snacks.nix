@@ -89,6 +89,17 @@ in {
               end
             end,
           }):map("<leader>ut")
+
+          Snacks.toggle({
+            name = "Format on Save (Global)",
+            get = function() return vim.g.formatsave end,
+            set = function(state) vim.g.formatsave = state end
+          }):map("<leader>uf")
+          Snacks.toggle({
+            name = "Format on Save (Buffer)",
+            get = function() return not vim.b.disableFormatSave end,
+            set = function(state) vim.b.disableFormatSave = not state end
+          }):map("<leader>uF")
         end
       '';
     }
