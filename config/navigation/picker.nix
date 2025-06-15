@@ -4,6 +4,11 @@ in {
   vim.fzf-lua = {
     enable = true;
     profile = "default-title";
+
+    setupOpts = {
+      # currently has issues that throws an error even is there are no images to render
+      previewers.builtin.snacks_image.render_inline = false;
+    };
   };
 
   vim.keymaps = [
