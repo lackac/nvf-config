@@ -7,7 +7,7 @@ in {
       animate.enabled = true; # Efficient animations including over 45 easing functions (library)
       bigfile.enabled = true; # Deal with big files
       bufdelete.enabled = true; # Delete buffers without disrupting window layout
-      # dashboard.enabled = true; # Beautiful declarative dashboards
+      dashboard.enabled = true; # Beautiful declarative dashboards
       debug.enabled = true; # Pretty inspect & backtraces for debugging
       dim.enabled = true; # Focus on the active scope by dimming the rest
       explorer.enabled = true; # A file explorer (picker in disguise)
