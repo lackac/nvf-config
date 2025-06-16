@@ -1,55 +1,69 @@
 {lib, ...}: let
   inherit (lib.nvim.binds) mkKeymap;
-in {
-  vim.fzf-lua = {
-    enable = true;
-    profile = "default-title";
 
-    setupOpts = {
-      # currently has issues that throws an error even is there are no images to render
-      previewers.builtin.snacks_image.render_inline = false;
+  mkPickerMap = key: body: desc:
+    mkKeymap "n" key "function() ${body} end" {
+      inherit desc;
+      lua = true;
     };
-  };
-
+in {
   vim.keymaps = [
     # Main
-    (mkKeymap "n" "<leader><space>" "<cmd>FzfLua files<cr>" {desc = "Find Files";})
-    (mkKeymap "n" "<leader>/" "<cmd>FzfLua live_grep<cr>" {desc = "Live Grep";})
-    (mkKeymap "n" "<leader>:" "<cmd>FzfLua command_history<cr>" {desc = "Command History";})
-    (mkKeymap "n" "<leader>." "<cmd>FzfLua resume<cr>" {desc = "Resume last FzfLua";})
+    (mkPickerMap "<leader><space>" "Snacks.picker.smart()" "Smart Find Files")
+    (mkPickerMap "<leader>." "Snacks.picker.resume()" "Resume")
+    (mkPickerMap "<leader>/" "Snacks.picker.grep()" "Grep")
+    (mkPickerMap "<leader>:" "Snacks.picker.command_history()" "Command History")
+    (mkPickerMap "<leader>n" "Snacks.picker.notifications()" "Notification History")
+    (mkPickerMap "<leader>e" "Snacks.explorer()" "File Explorer")
 
     # Find
-    (mkKeymap "n" "<leader>fb" "<cmd>FzfLua buffers sort_mru=true sort_lastused=true<cr>" {desc = "Find Buffers";})
-    (mkKeymap "n" "<leader>fc" "<cmd>FzfLua files cwd=~/Code/lackac/nvf-config<cr>" {desc = "Find Config Files";})
-    (mkKeymap "n" "<leader>fg" "<cmd>FzfLua git_files<cr>" {desc = "Find Files (git-files)";})
-    (mkKeymap "n" "<leader>fr" "<cmd>FzfLua oldfiles<cr>" {desc = "Recent Files";})
+    (mkPickerMap "<leader>fb" "Snacks.picker.buffers()" "Buffers")
+    (mkPickerMap "<leader>fc" "Snacks.picker.files({ cwd = '~/Code/lackac/nvf-config' })" "Find Config File")
+    (mkPickerMap "<leader>ff" "Snacks.picker.files()" "Find Files")
+    (mkPickerMap "<leader>fg" "Snacks.picker.git_files()" "Find Git Files")
+    (mkPickerMap "<leader>fp" "Snacks.picker.projects()" "Projects")
+    (mkPickerMap "<leader>fP" "Snacks.picker.pickers()" "Pickers")
+    (mkPickerMap "<leader>fr" "Snacks.picker.recent({ filter = { cwd = true } })" "Recent")
+    (mkPickerMap "<leader>fR" "Snacks.picker.recent()" "Recent Global")
 
     # Git
-    (mkKeymap "n" "<leader>gc" "<cmd>FzfLua git_commits<CR>" {desc = "Git Commits";})
-    (mkKeymap "n" "<leader>gs" "<cmd>FzfLua git_status<CR>" {desc = "Git Status";})
-    (mkKeymap "n" "<leader>gC" "<cmd>FzfLua git_bcommits<cr>" {desc = "Buffer commits";})
-    (mkKeymap "n" "<leader>gb" "<cmd>FzfLua git_blame<cr>" {desc = "Git Blame";})
-    (mkKeymap "n" "<leader>gB" "<cmd>FzfLua git_branches<cr>" {desc = "Git Branches";})
-    (mkKeymap "n" "<leader>gS" "<cmd>FzfLua git_stash<cr>" {desc = "Git Stash";})
+    (mkPickerMap "<leader>gb" "Snacks.picker.git_branches()" "Git Branches")
+    (mkPickerMap "<leader>gl" "Snacks.picker.git_log()" "Git Log")
+    (mkPickerMap "<leader>gL" "Snacks.picker.git_log_line()" "Git Log Line")
+    (mkPickerMap "<leader>gs" "Snacks.picker.git_status()" "Git Status")
+    (mkPickerMap "<leader>gS" "Snacks.picker.git_stash()" "Git Stash")
+    (mkPickerMap "<leader>gd" "Snacks.picker.git_diff()" "Git Diff (Hunks)")
+    (mkPickerMap "<leader>gf" "Snacks.picker.git_log_file()" "Git Log File")
 
     # Search
-    (mkKeymap "n" ''<leader>s"'' "<cmd>FzfLua registers<cr>" {desc = "Search Registers";})
-    (mkKeymap "n" "<leader>sa" "<cmd>FzfLua autocmds<cr>" {desc = "Search Auto Commands";})
-    (mkKeymap "n" "<leader>sb" "<cmd>FzfLua grep_curbuf<cr>" {desc = "Search in Buffer";})
-    (mkKeymap "n" "<leader>sc" "<cmd>FzfLua commands<cr>" {desc = "Search Commands";})
-    (mkKeymap "n" "<leader>sd" "<cmd>FzfLua diagnostics_document<cr>" {desc = "Search Document Diagnostics";})
-    (mkKeymap "n" "<leader>sD" "<cmd>FzfLua diagnostics_workspace<cr>" {desc = "Search Workspace Diagnostics";})
-    (mkKeymap "n" "<leader>sg" "<cmd>FzfLua live_grep<cr>" {desc = "Live Grep";})
-    (mkKeymap "n" "<leader>sh" "<cmd>FzfLua help_tags<cr>" {desc = "Search Help Pages";})
-    (mkKeymap "n" "<leader>sH" "<cmd>FzfLua highlights<cr>" {desc = "Search Highlight Groups";})
-    (mkKeymap "n" "<leader>sj" "<cmd>FzfLua jumps<cr>" {desc = "Jumplist";})
-    (mkKeymap "n" "<leader>sk" "<cmd>FzfLua keymaps<cr>" {desc = "Search Keymaps";})
-    (mkKeymap "n" "<leader>sl" "<cmd>FzfLua loclist<cr>" {desc = "Search Location List";})
-    (mkKeymap "n" "<leader>sM" "<cmd>FzfLua man_pages<cr>" {desc = "Search Man Pages";})
-    (mkKeymap "n" "<leader>sm" "<cmd>FzfLua marks<cr>" {desc = "Search Marks";})
-    (mkKeymap "n" "<leader>sq" "<cmd>FzfLua quickfix<cr>" {desc = "Search Quickfix List";})
-    (mkKeymap "n" "<leader>sw" "<cmd>FzfLua grep_cword<cr>" {desc = "Grep Word Under Cursor";})
-    (mkKeymap "v" "<leader>sw" "<cmd>FzfLua grep_visual<cr>" {desc = "Grep Selection";})
-    (mkKeymap "n" "<leader>sW" "<cmd>FzfLua grep_cWORD<cr>" {desc = "Grep Word Under Cursor";})
+    (mkPickerMap ''<leader>s"'' "Snacks.picker.registers()" "Registers")
+    (mkPickerMap "<leader>s/" "Snacks.picker.search_history()" "Search History")
+    (mkPickerMap "<leader>sa" "Snacks.picker.autocmds()" "Autocmds")
+    (mkPickerMap "<leader>sb" "Snacks.picker.lines()" "Buffer Lines")
+    (mkPickerMap "<leader>sB" "Snacks.picker.grep_buffers()" "Grep Open Buffers")
+    (mkPickerMap "<leader>sc" "Snacks.picker.commands()" "Commands")
+    (mkPickerMap "<leader>sd" "Snacks.picker.diagnostics()" "Diagnostics")
+    (mkPickerMap "<leader>sD" "Snacks.picker.diagnostics_buffer()" "Buffer Diagnostics")
+    (mkPickerMap "<leader>sg" "Snacks.picker.grep()" "Grep")
+    (mkPickerMap "<leader>sh" "Snacks.picker.help()" "Help Pages")
+    (mkPickerMap "<leader>sH" "Snacks.picker.highlights()" "Highlights")
+    (mkPickerMap "<leader>si" "Snacks.picker.icons()" "Icons")
+    (mkPickerMap "<leader>sj" "Snacks.picker.jumps()" "Jumps")
+    (mkPickerMap "<leader>sk" "Snacks.picker.keymaps()" "Keymaps")
+    (mkPickerMap "<leader>sl" "Snacks.picker.loclist()" "Location List")
+    (mkPickerMap "<leader>sm" "Snacks.picker.marks()" "Marks")
+    (mkPickerMap "<leader>sM" "Snacks.picker.man()" "Man Pages")
+    (mkPickerMap "<leader>sq" "Snacks.picker.qflist()" "Quickfix List")
+    (mkPickerMap "<leader>su" "Snacks.picker.undo()" "Undo History")
+    ((mkPickerMap "<leader>sw" "Snacks.picker.grep_word()" "Visual selection or word") // {mode = ["n" "x"];})
+
+    # LSP
+    (mkPickerMap "gd" "Snacks.picker.lsp_definitions()" "Goto Definition")
+    (mkPickerMap "gD" "Snacks.picker.lsp_declarations()" "Goto Declaration")
+    ((mkPickerMap "gr" "Snacks.picker.lsp_references()" "References") // {nowait = true;})
+    (mkPickerMap "gI" "Snacks.picker.lsp_implementations()" "Goto Implementation")
+    (mkPickerMap "gy" "Snacks.picker.lsp_type_definitions()" "Goto T[y]pe Definition")
+    (mkPickerMap "<leader>ss" "Snacks.picker.lsp_symbols()" "LSP Symbols")
+    (mkPickerMap "<leader>sS" "Snacks.picker.lsp_workspace_symbols()" "LSP Workspace Symbols")
   ];
 }

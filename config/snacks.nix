@@ -10,7 +10,7 @@ in {
       # dashboard.enabled = true; # Beautiful declarative dashboards
       debug.enabled = true; # Pretty inspect & backtraces for debugging
       dim.enabled = true; # Focus on the active scope by dimming the rest
-      # explorer.enabled = true; # A file explorer (picker in disguise)
+      explorer.enabled = true; # A file explorer (picker in disguise)
       git.enabled = true; # Git utilities
       gitbrowse.enabled = true; # Open the current file, branch, commit, or repo in a browser (e.g. GitHub, GitLab, Bitbucket)
       image.enabled = true; # Image viewer using Kitty Graphics Protocol, supported by kitty, wezterm and ghostty
@@ -20,7 +20,7 @@ in {
       # lazygit.enabled = true; # Open LazyGit in a float, auto-configure colorscheme and integration with Neovim
       notifier.enabled = true; # Pretty vim.notify
       notify.enabled = true; # Utility functions to work with Neovim's vim.notify
-      # picker.enabled = true; # Picker for selecting items
+      picker.enabled = true; # Picker for selecting items
       profiler.enabled = true; # Neovim lua profiler
       quickfile.enabled = true; # When doing nvim somefile.txt, it will render the file as quickly as possible, before loading your plugins.
       # TODO rename.enabled = true; # LSP-integrated file renaming with support for plugins like neo-tree.nvim and mini.files.
