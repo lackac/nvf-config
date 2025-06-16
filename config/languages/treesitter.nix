@@ -16,7 +16,7 @@
 
     mappings.incrementalSelection = {
       incrementByNode = "<C-S>";
-      decrementByNode = "<C-BS>";
+      decrementByNode = "<BS>";
       init = null;
       incrementByScope = null;
     };
