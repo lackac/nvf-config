@@ -3,9 +3,11 @@
     ./options.nix
     ./colorscheme.nix
     ./autocmds.nix
-    ./snacks.nix
     ./keymaps.nix
+    ./snacks.nix
     ./editing
+    ./coding
+    ./ui
     ./navigation
     ./languages
   ];
