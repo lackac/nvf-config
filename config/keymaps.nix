@@ -159,6 +159,16 @@ in {
     # new file
     (mkKeymap "n" "<leader>fn" "<cmd>enew<cr>" {desc = "New File";})
 
+    # scratch file
+    (mkKeymap "n" "<leader>," ''function() Snacks.scratch() end'' {
+      desc = "Toggle Scratch Buffer";
+      lua = true;
+    })
+    (mkKeymap "n" "<leader>S" ''function() Snacks.scratch.select() end'' {
+      desc = "Select Scratch Buffer";
+      lua = true;
+    })
+
     # location list
     (mkKeymap "n" "<leader>xl" ''
         function()
