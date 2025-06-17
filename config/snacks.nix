@@ -38,6 +38,10 @@ in {
       indent = {
         indent.char = "┊";
       };
+
+      explorer = {
+        replace_netrw = false; # conflicts with mini.files
+      };
     };
   };
 

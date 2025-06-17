@@ -1,7 +1,7 @@
 {
   imports = [
+    ./mini.files.nix
     ./picker.nix
-    ./oil.nix
     ./smart-splits.nix
   ];
 }
