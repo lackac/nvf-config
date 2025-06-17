@@ -23,7 +23,7 @@ in {
       picker.enabled = true; # Picker for selecting items
       profiler.enabled = true; # Neovim lua profiler
       quickfile.enabled = true; # When doing nvim somefile.txt, it will render the file as quickly as possible, before loading your plugins.
-      # TODO rename.enabled = true; # LSP-integrated file renaming with support for plugins like neo-tree.nvim and mini.files.
+      rename.enabled = true; # LSP-integrated file renaming with support for plugins like neo-tree.nvim and mini.files.
       scope.enabled = true; # Scope detection, text objects and jumping based on treesitter or indent
       scratch.enabled = true; # Scratch buffers with a persistent file
       # scroll.enabled = true; # Smooth scrolling

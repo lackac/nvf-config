@@ -106,6 +106,17 @@ in {
           end
         '';
       }
+
+      {
+        desc = "trigger Snacks.rename from mini.files";
+        event = ["User"];
+        pattern = ["MiniFilesActionRename"];
+        callback = mkLuaInline ''
+          function(event)
+            Snacks.rename.on_rename_file(event.data.from, event.data.to)
+          end
+        '';
+      }
     ];
   };
 }
