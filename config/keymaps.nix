@@ -48,6 +48,12 @@ in {
           })
       ];
     };
+
+    # disable groups setup by nvf
+    register = {
+      "<leader>x" = null;
+      "<leader>lw" = null;
+    };
   };
 
   # most of these keymaps are borrowed from old configs and things I liked while using LazyVim
