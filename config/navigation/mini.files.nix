@@ -89,7 +89,7 @@ in {
         pattern = ["MiniFilesBufferCreate"];
         callback = mkLuaInline ''
           function(args)
-            local buf_id = args.buf_id
+            local buf_id = args.data.buf_id
             local mf = MiniFiles.helpers
 
             vim.keymap.set('n', 'g.', mf.toggle_dotfiles, { buffer = buf_id, desc = "Toggle Showing Dotfiles" })
@@ -102,7 +102,7 @@ in {
             vim.keymap.set('n', 'gy', mf.yank_path, { buffer = buf_id, desc = 'Yank path' })
 
             vim.keymap.set('n', '<Left>', MiniFiles.go_out, { buffer = buf_id, desc = 'Go up' })
-            vim.keymap.set('n', '<Right>', MiniFiles.go_in, { buffer = buf_id, desc = 'Go up' })
+            vim.keymap.set('n', '<Right>', MiniFiles.go_in, { buffer = buf_id, desc = 'Go in' })
           end
         '';
       }
