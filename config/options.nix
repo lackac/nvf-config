@@ -43,6 +43,7 @@
       cursorline = true;
       scrolloff = 4;
       sidescrolloff = 8;
+      showmode = false;
       fillchars = "eob: ";
       listchars = "tab:▸ ,trail:·,extends:>,precedes:<";
       showbreak = "↳";

@@ -61,6 +61,20 @@
         ''
         ''
           {
+            require("noice").api.status.command.get,
+            cond = require("noice").api.status.command.has,
+            color = function() return { fg = Snacks.util.color("Statement") } end,
+          }
+        ''
+        ''
+          {
+            require("noice").api.status.mode.get,
+            cond = require("noice").api.status.mode.has,
+            color = function() return { fg = Snacks.util.color("Constant") } end,
+          }
+        ''
+        ''
+          {
             -- Lsp server name
             function()
               local buf_ft = vim.bo.filetype
