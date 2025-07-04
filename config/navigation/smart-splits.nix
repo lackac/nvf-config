@@ -6,6 +6,10 @@ in {
 
     keymaps = {
       move_cursor_previous = null;
+      swap_buf_left = null;
+      swap_buf_right = null;
+      swap_buf_up = null;
+      swap_buf_down = null;
     };
   };
 
