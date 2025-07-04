@@ -48,5 +48,9 @@
       showbreak = "↳";
       termguicolors = true;
     };
+
+    globals = {
+      loaded_netrwPlugin = 1;
+    };
   };
 }
