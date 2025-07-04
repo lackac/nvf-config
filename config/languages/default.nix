@@ -1,5 +1,6 @@
 {
   imports = [
+    ./diagnostics.nix
     ./treesitter.nix
     ./lsp.nix
     ./nix.nix
