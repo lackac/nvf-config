@@ -75,7 +75,6 @@ in {
           Snacks.toggle.animate():map("<leader>ua")
           Snacks.toggle.inlay_hints():map("<leader>uh")
           Snacks.toggle.indent():map("<leader>ug")
-          Snacks.toggle.scroll():map("<leader>uS")
           Snacks.toggle.profiler():map("<leader>dpp")
           Snacks.toggle.profiler_highlights():map("<leader>dph")
           Snacks.toggle.zen():map("<leader>uz")
