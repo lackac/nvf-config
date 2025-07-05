@@ -54,6 +54,8 @@ in {
     (mkPickerMap "<leader>sm" "Snacks.picker.marks()" "Marks")
     (mkPickerMap "<leader>sM" "Snacks.picker.man()" "Man Pages")
     (mkPickerMap "<leader>sq" "Snacks.picker.qflist()" "Quickfix List")
+    (mkPickerMap "<leader>st" "Snacks.picker.todo_comments()" "Todo")
+
     (mkPickerMap "<leader>su" "Snacks.picker.undo()" "Undo History")
     ((mkPickerMap "<leader>sw" "Snacks.picker.grep_word()" "Visual selection or word") // {mode = ["n" "x"];})
 

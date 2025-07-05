@@ -10,6 +10,7 @@
     ./ui
     ./navigation
     ./languages
+    ./notes
   ];
 
   vim = {
