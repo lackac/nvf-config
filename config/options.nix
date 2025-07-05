@@ -31,9 +31,11 @@
       # Don't use system clipboard by default
       clipboard = "";
 
-      # Disable folding by default
+      # Folding settings for nvim-ufo
+      foldcolumn = "1";
       foldlevel = 99;
-      foldlevelstart = -1;
+      foldlevelstart = 99;
+      foldenable = true;
 
       # Terminal title
       title = true;
