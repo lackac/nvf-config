@@ -1,5 +1,6 @@
 {
   imports = [
+    ./borders.nix
     ./bufferline.nix
     ./dashboard.nix
     ./folding.nix
