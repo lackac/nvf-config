@@ -7,6 +7,7 @@
     ./snacks.nix
     ./editing
     ./coding
+    ./git
     ./ui
     ./navigation
     ./languages

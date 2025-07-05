@@ -18,16 +18,23 @@ in {
         (wkGroup "<leader>dp" "profiler")
         (wkGroup "<leader>f" "file/find")
         (wkGroup "<leader>g" "git")
-        (wkGroup "<leader>gh" "hunks")
+        ((wkGroup "<leader>h" "hunks")
+          // {
+            icon = {
+              icon = " ";
+              color = "cyan";
+            };
+          })
         (wkGroup "<leader>q" "quit/session")
         (wkGroup "<leader>s" "search")
-        ((wkGroup "<leader>u" "ui")
+        ((wkGroup "<leader>u" "ui/toggles")
           // {
             icon = {
               icon = "󰙵 ";
               color = "cyan";
             };
           })
+        (wkGroup "<leader>ug" "gitsigns")
         ((wkGroup "<leader>x" "diagnostics/quickfix")
           // {
             icon = {

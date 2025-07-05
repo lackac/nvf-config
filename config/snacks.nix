@@ -74,7 +74,7 @@ in {
           Snacks.toggle.dim():map("<leader>uD")
           Snacks.toggle.animate():map("<leader>ua")
           Snacks.toggle.inlay_hints():map("<leader>uh")
-          Snacks.toggle.indent():map("<leader>ug")
+          Snacks.toggle.indent():map("<leader>uG")
           Snacks.toggle.profiler():map("<leader>dpp")
           Snacks.toggle.profiler_highlights():map("<leader>dph")
           Snacks.toggle.zen():map("<leader>uz")
@@ -103,6 +103,23 @@ in {
             get = function() return not vim.b.disableFormatSave end,
             set = function(state) vim.b.disableFormatSave = not state end
           }):map("<leader>uF")
+
+          local gitsignsToggles = {
+            { "<leader>ugs", "Git Signs", "signcolumn", "toggle_signs" },
+            { "<leader>ugb", "Current Line Blame", "current_line_blame", "toggle_current_line_blame" },
+            { "<leader>ugd", "Show Deleted", "show_deleted", "toggle_deleted" },
+            { "<leader>ugn", "Line Number Highlight", "numhl", "toggle_numhl" },
+            { "<leader>ugw", "Word Diff", "word_diff", "toggle_word_diff" },
+          }
+
+          for _, toggle in ipairs(gitsignsToggles) do
+            local keymap, name, config_key, method = toggle[1], toggle[2], toggle[3], toggle[4]
+            Snacks.toggle({
+              name = name,
+              get = function() return require("gitsigns.config").config[config_key] end,
+              set = function(state) require("gitsigns")[method](state) end,
+            }):map(keymap)
+          end
         end
       '';
     }
