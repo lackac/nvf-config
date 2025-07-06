@@ -24,6 +24,7 @@ in {
           }
         '')
       ];
+
       lualine_b = [
         (mkLuaInline ''
           {
@@ -54,6 +55,30 @@ in {
               alternate_file = '^', -- Text to show to identify the alternate file
               directory =  '',     -- Text to show when the buffer is a directory
             },
+
+            component_separators = { left = "|", right = "" },
+            section_separators = { left = "", right = "" },
+          }
+        '')
+      ];
+
+      lualine_z = [
+        (mkLuaInline ''
+          {
+            'tabs',
+
+            -- only show tabs if there are more than 1
+            cond = function() return #vim.fn.gettabinfo() > 1 end,
+
+            max_length = function() return vim.o.columns / 5 end,
+            mode = 0,
+
+            tabs_color = {
+              active = 'lualine_z_normal',     -- Color for active tab.
+              inactive = 'lualine_z_inactive', -- Color for inactive tab.
+            },
+
+            show_modified_status = false,
 
             component_separators = { left = "|", right = "" },
             section_separators = { left = "", right = "" },
