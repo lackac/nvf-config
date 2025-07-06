@@ -1,5 +1,6 @@
 {
   imports = [
+    ./autocomplete.nix
     ./mini.ai.nix
   ];
 
