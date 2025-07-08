@@ -1,6 +1,7 @@
 {
   vim.autocomplete.blink-cmp = {
     enable = true;
+    friendly-snippets.enable = true;
 
     mappings = {
       close = null;
@@ -42,6 +43,8 @@
           "emoji"
         ];
       };
+
+      snippets.preset = "luasnip";
 
       signature = {
         enabled = true;
