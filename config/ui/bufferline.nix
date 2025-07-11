@@ -7,19 +7,8 @@ in {
         (mkLuaInline ''
           {
             function()
-              local root = Snacks.git.get_root() or vim.uv.cwd()
               local width = math.min(40, vim.o.columns / 3)
-              local path = vim.fn.fnamemodify(root, ":~")
-              path = #path > width and vim.fn.pathshorten(path) or path
-              if #path > width then
-                local head = vim.fn.fnamemodify(path, ":h")
-                local tail = vim.fn.fnamemodify(path, ":t")
-                if head and tail then
-                  tail = tail:sub(-(width - #head - 2))
-                  path = head .. "/…" .. tail
-                end
-              end
-              return path
+              return libui.root(width)
             end
           }
         '')

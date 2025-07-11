@@ -5,6 +5,15 @@ in {
     sections = [
       {section = "header";}
       {
+        text = mkLuaInline ''
+          {
+            { libui.root(), hl = "SnacksDashboardTitle" }
+          }
+        '';
+        align = "center";
+        padding = 1;
+      }
+      {
         icon = " ";
         title = "Recent Files";
         section = "recent_files";
@@ -69,6 +78,18 @@ in {
           action = ":qa";
         }
       ];
+    };
+
+    formats = {
+      file = mkLuaInline ''
+        function(item, ctx)
+          local fname = vim.fn.fnamemodify(item.file, ":~")
+          local root = vim.fn.fnamemodify(Snacks.git.get_root() or vim.uv.cwd(), ":~")
+          fname = libui.pathshorten(fname, ctx.width, root)
+          local dir, file = fname:match("^(.*)/(.+)$")
+          return dir and { { dir .. "/", hl = "dir" }, { file, hl = "file" } } or { { fname, hl = "file" } }
+        end
+      '';
     };
   };
 }
