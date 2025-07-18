@@ -3,8 +3,10 @@
     ./diagnostics.nix
     ./treesitter.nix
     ./lsp.nix
-    ./nix.nix
+
     ./lua.nix
+    ./nix.nix
+    ./ruby.nix
   ];
 
   vim.languages = {
