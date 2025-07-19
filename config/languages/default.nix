@@ -5,6 +5,7 @@
     ./lsp.nix
 
     ./lua.nix
+    ./markdown.nix
     ./nix.nix
     ./ruby.nix
   ];

@@ -94,14 +94,14 @@ in {
           }):map("<leader>ut")
 
           Snacks.toggle({
-            name = "Format on Save (Global)",
-            get = function() return vim.g.formatsave end,
-            set = function(state) vim.g.formatsave = state end
-          }):map("<leader>uf")
-          Snacks.toggle({
             name = "Format on Save (Buffer)",
             get = function() return not vim.b.disableFormatSave end,
             set = function(state) vim.b.disableFormatSave = not state end
+          }):map("<leader>uf")
+          Snacks.toggle({
+            name = "Format on Save (Global)",
+            get = function() return vim.g.formatsave end,
+            set = function(state) vim.g.formatsave = state end
           }):map("<leader>uF")
 
           local gitsignsToggles = {
@@ -120,6 +120,34 @@ in {
               set = function(state) require("gitsigns")[method](state) end,
             }):map(keymap)
           end
+
+          local mkv = require("markview")
+
+          Snacks.toggle({
+            name = "Markview (Buffer)",
+            get = function()
+              local bufid = vim.api.nvim_get_current_buf()
+              local bufstate = mkv.state.buffer_states[bufid]
+              return bufstate and bufstate.enable
+            end,
+            set = function(state)
+              local toggle = mkv.commands[state and "enable" or "disable"]
+              toggle()
+            end
+          }):map("<leader>um")
+
+          Snacks.toggle({
+            name = "Markview (Global)",
+            get = function()
+              return vim.iter(mkv.state.attached_buffers or {}):any(function(bid)
+                return mkv.state.buffer_states[bid] and mkv.state.buffer_states[bid].enable
+              end)
+            end,
+            set = function(state)
+              local toggle = mkv.commands[state and "Enable" or "Disable"]
+              toggle()
+            end
+          }):map("<leader>uM")
         end
       '';
     }
