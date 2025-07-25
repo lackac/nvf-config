@@ -1,4 +1,6 @@
-{
+{lib, ...}: let
+  extraLanguages = ["bash" "clang" "css" "gleam" "go" "html" "python" "rust" "sql" "terraform" "ts" "typst"];
+in {
   imports = [
     ./diagnostics.nix
     ./treesitter.nix
@@ -11,9 +13,11 @@
     ./ruby.nix
   ];
 
-  vim.languages = {
-    enableTreesitter = true;
-    enableFormat = true;
-    enableExtraDiagnostics = true;
-  };
+  vim.languages =
+    {
+      enableTreesitter = true;
+      enableFormat = true;
+      enableExtraDiagnostics = true;
+    }
+    // lib.genAttrs extraLanguages (_: {enable = true;});
 }
