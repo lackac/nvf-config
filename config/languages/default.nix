@@ -4,6 +4,7 @@
     ./treesitter.nix
     ./lsp.nix
 
+    ./elixir.nix
     ./lua.nix
     ./markdown.nix
     ./nix.nix
