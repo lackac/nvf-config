@@ -1,13 +1,11 @@
 {
+  pkgs,
   lib,
-  config,
   ...
 }: let
   inherit (lib.generators) mkLuaInline;
   inherit (lib.meta) getExe;
   inherit (lib.nvim.dag) entryAfter;
-
-  cfg = config.vim.languages.ruby;
 in {
   vim = {
     languages.ruby = {
@@ -25,7 +23,7 @@ in {
           return {
             command = require("conform.util").find_executable({
               "bin/rubocop",
-            }, "${getExe cfg.format.package}"),
+            }, "${getExe pkgs.rubyPackages.rubocop}"),
           }
         end
       '';
