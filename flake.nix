@@ -39,20 +39,22 @@
       };
     });
 
-    devShells = forEachSystem (pkgs: let
-      packages = self.packages.${pkgs.system};
-    in {
-      default = pkgs.mkShell {
-        packages = with pkgs;
-          [
-            git
-          ]
-          ++ [
-            packages.nvf-config
-            packages.inspect
-          ];
-      };
-    });
+    devShells = forEachSystem (
+      pkgs: let
+        packages = self.packages.${pkgs.system};
+      in {
+        default = pkgs.mkShell {
+          packages = with pkgs;
+            [
+              git
+            ]
+            ++ [
+              packages.nvf-config
+              packages.inspect
+            ];
+        };
+      }
+    );
 
     # Format the nix code in this flake
     # alejandra is a nix formatter with a beautiful output
