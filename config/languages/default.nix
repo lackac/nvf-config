@@ -1,23 +1,71 @@
-{lib, ...}: let
-  extraLanguages = ["bash" "clang" "css" "gleam" "go" "html" "python" "rust" "sql" "terraform" "ts" "typst"];
-in {
-  imports = [
-    ./diagnostics.nix
-    ./treesitter.nix
-    ./lsp.nix
+{
+  config,
+  lib,
+  ...
+}: let
+  cfg = config.nvf-config;
 
-    ./elixir.nix
-    ./lua.nix
-    ./markdown.nix
-    ./nix.nix
-    ./ruby.nix
+  languageModules = [
+    "elixir"
+    "lua"
+    "markdown"
+    "nix"
+    "ruby"
   ];
 
-  vim.languages =
+  extraLanguages = [
+    "bash"
+    "clang"
+    "css"
+    "gleam"
+    "go"
+    "html"
+    "python"
+    "rust"
+    "sql"
+    "terraform"
+    "ts"
+    "typst"
+  ];
+
+  languageImports = map (lang: ./${lang}.nix) languageModules;
+
+  enabledExtraLanguages =
+    if cfg.enabledLanguages == null
+    then extraLanguages
+    else builtins.filter (lang: builtins.elem lang cfg.enabledLanguages) extraLanguages;
+
+  isEnabled = lang: cfg.enabledLanguages == null || builtins.elem lang cfg.enabledLanguages;
+
+  languageEnableOverrides = lib.genAttrs languageModules (lang: {
+    enable = lib.mkForce (isEnabled lang);
+  });
+in {
+  imports =
+    [
+      ./diagnostics.nix
+      ./treesitter.nix
+      ./lsp.nix
+    ]
+    ++ languageImports;
+
+  config = lib.mkMerge [
     {
-      enableTreesitter = true;
-      enableFormat = true;
-      enableExtraDiagnostics = true;
+      vim.languages = {
+        enableTreesitter = true;
+        enableFormat = true;
+        enableExtraDiagnostics = true;
+      };
     }
-    // lib.genAttrs extraLanguages (_: {enable = true;});
+
+    (lib.mkIf (cfg.enabledLanguages != null) {
+      vim.languages = languageEnableOverrides;
+    })
+
+    {
+      vim.languages = lib.genAttrs enabledExtraLanguages (_: {
+        enable = true;
+      });
+    }
+  ];
 }

@@ -26,12 +26,15 @@
     pkgsFor = system: import nixpkgs {inherit system;};
     forEachSystem = f: lib.genAttrs systems (system: f (pkgsFor system));
   in {
+    # Export the base configuration module for reuse in other flakes
+    nvfModules.default = import ./config;
+
     packages = forEachSystem (pkgs: rec {
       default = nvf-config;
       nvf-config =
         (nvf.lib.neovimConfiguration {
           inherit pkgs;
-          modules = [(import ./config)];
+          modules = [self.nvfModules.default];
         }).neovim;
       inspect = pkgs.writeShellApplication {
         name = "nvf-inspect-config";

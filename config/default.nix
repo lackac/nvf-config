@@ -1,4 +1,16 @@
 {
+  config,
+  lib,
+  ...
+}: {
+  options.nvf-config = {
+    enabledLanguages = lib.mkOption {
+      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      default = null;
+      description = "List of languages to enable. null means all languages are enabled.";
+    };
+  };
+
   imports = [
     ./options.nix
     ./colorscheme.nix
@@ -14,9 +26,11 @@
     ./notes
   ];
 
-  vim = {
-    viAlias = true;
-    vimAlias = true;
-    enableLuaLoader = true;
+  config = {
+    vim = {
+      viAlias = true;
+      vimAlias = true;
+      enableLuaLoader = true;
+    };
   };
 }
