@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: let
+{lib, ...}: let
   inherit (lib.generators) mkLuaInline;
 in {
   vim.autocomplete.blink-cmp = {
@@ -22,11 +18,6 @@ in {
     sourcePlugins = {
       emoji.enable = true;
       spell.enable = true;
-      blink-cmp-avante = {
-        enable = true;
-        package = pkgs.vimPlugins.blink-cmp-avante;
-        module = "blink-cmp-avante";
-      };
     };
 
     setupOpts = {
@@ -34,12 +25,25 @@ in {
         preset = "enter";
 
         "<C-space>" = [];
-        "<C-h>" = ["show" "show_documentation" "hide_documentation"];
+        "<C-h>" = [
+          "show"
+          "show_documentation"
+          "hide_documentation"
+        ];
         "<C-y>" = ["select_and_accept"];
-        "<CR>" = ["accept" "fallback"];
+        "<CR>" = [
+          "accept"
+          "fallback"
+        ];
 
-        "<C-d>" = ["scroll_documentation_down" "fallback"];
-        "<C-u>" = ["scroll_documentation_up" "fallback"];
+        "<C-d>" = [
+          "scroll_documentation_down"
+          "fallback"
+        ];
+        "<C-u>" = [
+          "scroll_documentation_up"
+          "fallback"
+        ];
       };
 
       cmdline.sources = [];
