@@ -9,7 +9,7 @@
 in {
   vim.keymaps = [
     # Main
-    (mkPickerMap "<leader><space>" "Snacks.picker.smart()" "Smart Find Files")
+    (mkPickerMap "<leader><space>" "Snacks.picker.files()" "Find Files")
     (mkPickerMap "<leader>." "Snacks.picker.resume()" "Resume")
     (mkPickerMap "<leader>/" "Snacks.picker.grep()" "Grep")
     (mkPickerMap "<leader>:" "Snacks.picker.command_history()" "Command History")
@@ -25,6 +25,7 @@ in {
     (mkPickerMap "<leader>fP" "Snacks.picker.pickers()" "Pickers")
     (mkPickerMap "<leader>fr" "Snacks.picker.recent({ filter = { cwd = true } })" "Recent")
     (mkPickerMap "<leader>fR" "Snacks.picker.recent()" "Recent Global")
+    (mkPickerMap "<leader>fs" "Snacks.picker.smart()" "Smart Find Files")
 
     # Git
     (mkPickerMap "<leader>gb" "Snacks.picker.git_branches()" "Git Branches")
