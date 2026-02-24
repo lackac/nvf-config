@@ -50,6 +50,10 @@
       listchars = "tab:▸ ,trail:·,extends:>,precedes:<";
       showbreak = "↳";
       termguicolors = true;
+
+      # Local overrides
+      exrc = true;
+      secure = true;
     };
 
     globals = {
