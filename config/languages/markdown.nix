@@ -1,7 +1,9 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
   inherit (lib.nvim.dag) entryAfter;
-in {
+in
+{
   vim = {
     languages.markdown = {
       enable = true;
@@ -16,7 +18,7 @@ in {
       };
     };
 
-    pluginRC.markview-extras = entryAfter ["markview-nvim"] ''
+    pluginRC.markview-extras = entryAfter [ "markview-nvim" ] ''
       require("markview.extras.checkboxes").setup({
         states = {
           { " ", "/", "X" },
@@ -28,8 +30,8 @@ in {
     autocmds = [
       {
         desc = "Markview buffer mappings";
-        event = ["User"];
-        pattern = ["MarkviewAttach"];
+        event = [ "User" ];
+        pattern = [ "MarkviewAttach" ];
         callback = mkLuaInline ''
           function(event)
             local buf_id = event.data.buf_id

@@ -1,9 +1,11 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
-in {
+in
+{
   vim.utility.snacks-nvim.setupOpts.dashboard = {
     sections = [
-      {section = "header";}
+      { section = "header"; }
       {
         text = mkLuaInline ''
           {
@@ -25,7 +27,7 @@ in {
         icon = " ";
         title = "Git Status";
         section = "terminal";
-        enabled = mkLuaInline ''function() return Snacks.git.get_root() ~= nil end'';
+        enabled = mkLuaInline "function() return Snacks.git.get_root() ~= nil end";
         cmd = "git status --short --branch --renames";
         height = 8;
         padding = 1;

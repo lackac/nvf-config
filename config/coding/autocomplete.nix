@@ -1,6 +1,8 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
-in {
+in
+{
   vim.autocomplete.blink-cmp = {
     enable = true;
     friendly-snippets.enable = true;
@@ -24,13 +26,13 @@ in {
       keymap = {
         preset = "enter";
 
-        "<C-space>" = [];
+        "<C-space>" = [ ];
         "<C-h>" = [
           "show"
           "show_documentation"
           "hide_documentation"
         ];
-        "<C-y>" = ["select_and_accept"];
+        "<C-y>" = [ "select_and_accept" ];
         "<CR>" = [
           "accept"
           "fallback"
@@ -46,7 +48,7 @@ in {
         ];
       };
 
-      cmdline.sources = [];
+      cmdline.sources = [ ];
 
       sources = {
         providers = {

@@ -1,6 +1,8 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
-in {
+in
+{
   vim.diagnostics = {
     enable = true;
 

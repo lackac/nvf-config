@@ -3,9 +3,18 @@
     enable = true;
     setupOpts = {
       signs = {
-        hunk = ["" ""];
-        item = ["" ""];
-        section = ["" ""];
+        hunk = [
+          ""
+          ""
+        ];
+        item = [
+          ""
+          ""
+        ];
+        section = [
+          ""
+          ""
+        ];
       };
     };
     mappings = {

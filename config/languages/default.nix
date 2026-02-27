@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.nvf-config;
 
   languageModules = [
@@ -31,23 +32,24 @@
   languageImports = map (lang: ./${lang}.nix) languageModules;
 
   enabledExtraLanguages =
-    if cfg.enabledLanguages == null
-    then extraLanguages
-    else builtins.filter (lang: builtins.elem lang cfg.enabledLanguages) extraLanguages;
+    if cfg.enabledLanguages == null then
+      extraLanguages
+    else
+      builtins.filter (lang: builtins.elem lang cfg.enabledLanguages) extraLanguages;
 
   isEnabled = lang: cfg.enabledLanguages == null || builtins.elem lang cfg.enabledLanguages;
 
   languageEnableOverrides = lib.genAttrs languageModules (lang: {
     enable = lib.mkForce (isEnabled lang);
   });
-in {
-  imports =
-    [
-      ./diagnostics.nix
-      ./treesitter.nix
-      ./lsp.nix
-    ]
-    ++ languageImports;
+in
+{
+  imports = [
+    ./diagnostics.nix
+    ./treesitter.nix
+    ./lsp.nix
+  ]
+  ++ languageImports;
 
   config = lib.mkMerge [
     {

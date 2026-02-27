@@ -1,7 +1,7 @@
 {
   vim.statusline.lualine = {
     enable = true;
-    disabledFiletypes = ["snacks_dashboard"];
+    disabledFiletypes = [ "snacks_dashboard" ];
     refresh = {
       statusline = 100;
       tabline = 100;

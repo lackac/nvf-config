@@ -1,13 +1,18 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
   inherit (lib.nvim.binds) mkKeymap;
 
   wkGroup = lhs: group: {
     "@1" = lhs;
     inherit group;
-    mode = ["n" "v"];
+    mode = [
+      "n"
+      "v"
+    ];
   };
-in {
+in
+{
   vim.binds.whichKey = {
     enable = true;
     setupOpts = {
@@ -18,41 +23,54 @@ in {
         (wkGroup "<leader>dp" "profiler")
         (wkGroup "<leader>f" "file/find")
         (wkGroup "<leader>g" "git")
-        ((wkGroup "<leader>h" "hunks")
+        (
+          (wkGroup "<leader>h" "hunks")
           // {
             icon = {
               icon = " ";
               color = "cyan";
             };
-          })
+          }
+        )
         (wkGroup "<leader>q" "quit/session")
         (wkGroup "<leader>s" "search")
-        ((wkGroup "<leader>u" "ui/toggles")
+        (
+          (wkGroup "<leader>u" "ui/toggles")
           // {
             icon = {
               icon = "󰙵 ";
               color = "cyan";
             };
-          })
+          }
+        )
         (wkGroup "<leader>ug" "gitsigns")
-        ((wkGroup "<leader>x" "diagnostics/quickfix")
+        (
+          (wkGroup "<leader>x" "diagnostics/quickfix")
           // {
             icon = {
               icon = "󱖫 ";
               color = "green";
             };
-          })
+          }
+        )
         (wkGroup "[" "prev")
         (wkGroup "]" "next")
         (wkGroup "g" "goto")
         (wkGroup "gs" "surround")
         (wkGroup "z" "fold")
-        ((wkGroup "<leader>b" "buffer") // {expand = mkLuaInline ''function() return require("which-key.extras").expand.buf() end'';})
-        ((wkGroup "<leader>w" "windows")
+        (
+          (wkGroup "<leader>b" "buffer")
+          // {
+            expand = mkLuaInline ''function() return require("which-key.extras").expand.buf() end'';
+          }
+        )
+        (
+          (wkGroup "<leader>w" "windows")
           // {
             proxy = "<c-w>";
             expand = mkLuaInline ''function() return require("which-key.extras").expand.win() end'';
-          })
+          }
+        )
       ];
     };
 
@@ -70,66 +88,74 @@ in {
       desc = "Buffer Keymaps (which-key)";
       lua = true;
     })
-    (mkKeymap "n" "<c-w><space>" ''function() require("which-key").show({ keys = "<c-w>", loop = true }) end'' {
-      desc = "Window Hydra Mode (which-key)";
-      lua = true;
-    })
+    (mkKeymap "n" "<c-w><space>"
+      ''function() require("which-key").show({ keys = "<c-w>", loop = true }) end''
+      {
+        desc = "Window Hydra Mode (which-key)";
+        lua = true;
+      }
+    )
 
     # better up/down
-    (mkKeymap ["n" "x"] "j" "v:count == 0 ? 'gj' : 'j'" {
+    (mkKeymap [ "n" "x" ] "j" "v:count == 0 ? 'gj' : 'j'" {
       desc = "Down";
       expr = true;
       silent = true;
     })
-    (mkKeymap ["n" "x"] "<Down>" "v:count == 0 ? 'gj' : 'j'" {
+    (mkKeymap [ "n" "x" ] "<Down>" "v:count == 0 ? 'gj' : 'j'" {
       desc = "Down";
       expr = true;
       silent = true;
     })
-    (mkKeymap ["n" "x"] "k" "v:count == 0 ? 'gk' : 'k'" {
+    (mkKeymap [ "n" "x" ] "k" "v:count == 0 ? 'gk' : 'k'" {
       desc = "Up";
       expr = true;
       silent = true;
     })
-    (mkKeymap ["n" "x"] "<Up>" "v:count == 0 ? 'gk' : 'k'" {
+    (mkKeymap [ "n" "x" ] "<Up>" "v:count == 0 ? 'gk' : 'k'" {
       desc = "Up";
       expr = true;
       silent = true;
     })
 
     # buffers
-    (mkKeymap "n" "<S-h>" "<cmd>bprevious<cr>" {desc = "Prev Buffer";})
-    (mkKeymap "n" "<S-l>" "<cmd>bnext<cr>" {desc = "Next Buffer";})
-    (mkKeymap "n" "[b" "<cmd>bprevious<cr>" {desc = "Prev Buffer";})
-    (mkKeymap "n" "]b" "<cmd>bnext<cr>" {desc = "Next Buffer";})
-    (mkKeymap "n" "<leader>bb" "<cmd>e #<cr>" {desc = "Switch to Other Buffer";})
-    (mkKeymap "n" "<leader>`" "<cmd>e #<cr>" {desc = "Switch to Other Buffer";})
-    (mkKeymap "n" "<leader>bd" ''function() Snacks.bufdelete() end'' {
+    (mkKeymap "n" "<S-h>" "<cmd>bprevious<cr>" { desc = "Prev Buffer"; })
+    (mkKeymap "n" "<S-l>" "<cmd>bnext<cr>" { desc = "Next Buffer"; })
+    (mkKeymap "n" "[b" "<cmd>bprevious<cr>" { desc = "Prev Buffer"; })
+    (mkKeymap "n" "]b" "<cmd>bnext<cr>" { desc = "Next Buffer"; })
+    (mkKeymap "n" "<leader>bb" "<cmd>e #<cr>" { desc = "Switch to Other Buffer"; })
+    (mkKeymap "n" "<leader>`" "<cmd>e #<cr>" { desc = "Switch to Other Buffer"; })
+    (mkKeymap "n" "<leader>bd" "function() Snacks.bufdelete() end" {
       desc = "Delete Buffer";
       lua = true;
     })
-    (mkKeymap "n" "<leader>bo" ''function() Snacks.bufdelete.other() end'' {
+    (mkKeymap "n" "<leader>bo" "function() Snacks.bufdelete.other() end" {
       desc = "Delete Other Buffers";
       lua = true;
     })
-    (mkKeymap "n" "<leader>bD" "<cmd>:bd<cr>" {desc = "Delete Buffer and Window";})
+    (mkKeymap "n" "<leader>bD" "<cmd>:bd<cr>" { desc = "Delete Buffer and Window"; })
 
     # clear search and stop snippet on escape
-    (mkKeymap ["i" "n" "s"] "<esc>" ''
+    (mkKeymap [ "i" "n" "s" ] "<esc>"
+      ''
         function()
           vim.cmd("nohlsearch")
           -- TODO LazyVim.cmp.actions.snippet_stop()
           return "<esc>"
         end
-      '' {
+      ''
+      {
         expr = true;
         desc = "Escape and Clear hlsearch";
         lua = true;
-      })
+      }
+    )
 
     # Clear search, diff update and redraw
     # taken from runtime/lua/_editor.lua
-    (mkKeymap "n" "<leader>ur" "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>" {desc = "Redraw / Clear hlsearch / Diff Update";})
+    (mkKeymap "n" "<leader>ur" "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>" {
+      desc = "Redraw / Clear hlsearch / Diff Update";
+    })
 
     # https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
     (mkKeymap "n" "n" "'Nn'[v:searchforward].'zv'" {
@@ -158,57 +184,64 @@ in {
     })
 
     # Add undo break-points
-    (mkKeymap "i" "," ",<c-g>u" {})
-    (mkKeymap "i" "." ".<c-g>u" {})
-    (mkKeymap "i" ";" ";<c-g>u" {})
+    (mkKeymap "i" "," ",<c-g>u" { })
+    (mkKeymap "i" "." ".<c-g>u" { })
+    (mkKeymap "i" ";" ";<c-g>u" { })
 
     # keywordprg
-    (mkKeymap "n" "<leader>K" "<cmd>norm! K<cr>" {desc = "Keywordprg";})
+    (mkKeymap "n" "<leader>K" "<cmd>norm! K<cr>" { desc = "Keywordprg"; })
 
     # commenting
-    (mkKeymap "n" "gco" "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>" {desc = "Add Comment Below";})
-    (mkKeymap "n" "gcO" "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>" {desc = "Add Comment Above";})
+    (mkKeymap "n" "gco" "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>" { desc = "Add Comment Below"; })
+    (mkKeymap "n" "gcO" "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>" { desc = "Add Comment Above"; })
 
     # new file
-    (mkKeymap "n" "<leader>fn" "<cmd>enew<cr>" {desc = "New File";})
+    (mkKeymap "n" "<leader>fn" "<cmd>enew<cr>" { desc = "New File"; })
 
     # scratch file
-    (mkKeymap "n" "<leader>," ''function() Snacks.scratch() end'' {
+    (mkKeymap "n" "<leader>," "function() Snacks.scratch() end" {
       desc = "Toggle Scratch Buffer";
       lua = true;
     })
-    (mkKeymap "n" "<leader>S" ''function() Snacks.scratch.select() end'' {
+    (mkKeymap "n" "<leader>S" "function() Snacks.scratch.select() end" {
       desc = "Select Scratch Buffer";
       lua = true;
     })
 
     # location list
-    (mkKeymap "n" "<leader>xl" ''
+    (mkKeymap "n" "<leader>xl"
+      ''
         function()
           local success, err = pcall(vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 and vim.cmd.lclose or vim.cmd.lopen)
           if not success and err then
             vim.notify(err, vim.log.levels.ERROR)
           end
         end
-      '' {
+      ''
+      {
         desc = "Location List";
         lua = true;
-      })
+      }
+    )
 
     # quickfix list
-    (mkKeymap "n" "<leader>xq" ''
+    (mkKeymap "n" "<leader>xq"
+      ''
         function()
           local success, err = pcall(vim.fn.getqflist({ winid = 0 }).winid ~= 0 and vim.cmd.cclose or vim.cmd.copen)
           if not success and err then
             vim.notify(err, vim.log.levels.ERROR)
           end
         end
-      '' {
+      ''
+      {
         desc = "Quickfix List";
         lua = true;
-      })
+      }
+    )
 
-    (mkKeymap "n" "[q" ''
+    (mkKeymap "n" "[q"
+      ''
         function()
           if require("trouble").is_open() then
             require("trouble").prev({ skip_groups = true, jump = true })
@@ -219,11 +252,14 @@ in {
             end
           end
         end
-      '' {
+      ''
+      {
         desc = "Previous Trouble/Quickfix Item";
         lua = true;
-      })
-    (mkKeymap "n" "]q" ''
+      }
+    )
+    (mkKeymap "n" "]q"
+      ''
         function()
           if require("trouble").is_open() then
             require("trouble").next({ skip_groups = true, jump = true })
@@ -234,21 +270,23 @@ in {
             end
           end
         end
-      '' {
+      ''
+      {
         desc = "Next Trouble/Quickfix Item";
         lua = true;
-      })
+      }
+    )
 
     # diagnostic
-    (mkKeymap "n" "<leader>cd" ''vim.diagnostic.open_float'' {
+    (mkKeymap "n" "<leader>cd" "vim.diagnostic.open_float" {
       desc = "Line Diagnostics";
       lua = true;
     })
-    (mkKeymap "n" "]d" ''vim.diagnostic.goto_next'' {
+    (mkKeymap "n" "]d" "vim.diagnostic.goto_next" {
       desc = "Next Diagnostic";
       lua = true;
     })
-    (mkKeymap "n" "[d" ''vim.diagnostic.goto_prev'' {
+    (mkKeymap "n" "[d" "vim.diagnostic.goto_prev" {
       desc = "Prev Diagnostic";
       lua = true;
     })
@@ -270,41 +308,47 @@ in {
     })
 
     # git browse
-    (mkKeymap ["n" "x"] "<leader>gB" ''function() Snacks.gitbrowse() end'' {
+    (mkKeymap [ "n" "x" ] "<leader>gB" "function() Snacks.gitbrowse() end" {
       desc = "Git Browse (open)";
       lua = true;
     })
-    (mkKeymap ["n" "x"] "<leader>gY" ''
+    (mkKeymap [ "n" "x" ] "<leader>gY"
+      ''
         function()
           Snacks.gitbrowse({ open = function(url) vim.fn.setreg("+", url) end, notify = false })
         end
-      '' {
+      ''
+      {
         desc = "Git Browse (copy)";
         lua = true;
-      })
+      }
+    )
 
     # quit
-    (mkKeymap "n" "<leader>qq" "<cmd>qa<cr>" {desc = "Quit All";})
+    (mkKeymap "n" "<leader>qq" "<cmd>qa<cr>" { desc = "Quit All"; })
 
     # highlights under cursor
-    (mkKeymap "n" "<leader>ui" ''vim.show_pos'' {
+    (mkKeymap "n" "<leader>ui" "vim.show_pos" {
       desc = "Inspect Pos";
       lua = true;
     })
-    (mkKeymap "n" "<leader>uI" ''
+    (mkKeymap "n" "<leader>uI"
+      ''
         function()
           vim.treesitter.inspect_tree()
           vim.api.nvim_input("I")
         end
-      '' {
+      ''
+      {
         desc = "Inspect Tree";
         lua = true;
-      })
-    (mkKeymap "n" "]]" ''function() Snacks.words.jump(vim.v.count1) end'' {
+      }
+    )
+    (mkKeymap "n" "]]" "function() Snacks.words.jump(vim.v.count1) end" {
       desc = "Next Reference";
       lua = true;
     })
-    (mkKeymap "n" "[[" ''function() Snacks.words.jump(-vim.v.count1) end'' {
+    (mkKeymap "n" "[[" "function() Snacks.words.jump(-vim.v.count1) end" {
       desc = "Prev Reference";
       lua = true;
     })

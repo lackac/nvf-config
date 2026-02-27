@@ -1,14 +1,16 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.nvim.binds) mkKeymap;
   inherit (lib.generators) mkLuaInline;
   inherit (lib.nvim.dag) entryBefore;
-in {
+in
+{
   vim = {
     mini.files = {
       enable = true;
       setupOpts = {
         content = {
-          filter = mkLuaInline ''function(fs_entry) return not vim.startswith(fs_entry.name, '.') end'';
+          filter = mkLuaInline "function(fs_entry) return not vim.startswith(fs_entry.name, '.') end";
         };
         mappings = {
           go_in = "L";
@@ -20,11 +22,14 @@ in {
     };
 
     keymaps = [
-      (mkKeymap "n" "-" "function() require('mini.files').open(vim.api.nvim_buf_get_name(0), true, MiniFiles.helpers.current_config) end" {
-        desc = "Open parent directory";
-        lua = true;
-        silent = true;
-      })
+      (mkKeymap "n" "-"
+        "function() require('mini.files').open(vim.api.nvim_buf_get_name(0), true, MiniFiles.helpers.current_config) end"
+        {
+          desc = "Open parent directory";
+          lua = true;
+          silent = true;
+        }
+      )
       (mkKeymap "n" "<leader>F" "function() require('mini.files').open() end" {
         desc = "Open mini.files";
         lua = true;
@@ -32,7 +37,7 @@ in {
       })
     ];
 
-    luaConfigRC.minifiles_helpers = entryBefore ["autocmds"] ''
+    luaConfigRC.minifiles_helpers = entryBefore [ "autocmds" ] ''
       MiniFiles.helpers = {
         show_dotfiles = false,
 
@@ -85,8 +90,8 @@ in {
     autocmds = [
       {
         desc = "more mini.files buffer mappings";
-        event = ["User"];
-        pattern = ["MiniFilesBufferCreate"];
+        event = [ "User" ];
+        pattern = [ "MiniFilesBufferCreate" ];
         callback = mkLuaInline ''
           function(args)
             local buf_id = args.data.buf_id
@@ -109,8 +114,8 @@ in {
 
       {
         desc = "trigger Snacks.rename from mini.files";
-        event = ["User"];
-        pattern = ["MiniFilesActionRename"];
+        event = [ "User" ];
+        pattern = [ "MiniFilesActionRename" ];
         callback = mkLuaInline ''
           function(event)
             Snacks.rename.on_rename_file(event.data.from, event.data.to)

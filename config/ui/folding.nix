@@ -1,7 +1,9 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
   inherit (lib.nvim.binds) mkKeymap;
-in {
+in
+{
   vim.ui.nvim-ufo = {
     enable = true;
     setupOpts = {

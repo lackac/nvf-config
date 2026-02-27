@@ -1,6 +1,8 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
-in {
+in
+{
   vim.utility.snacks-nvim = {
     enable = true;
     setupOpts = {
@@ -48,8 +50,8 @@ in {
   vim.autocmds = [
     {
       desc = "Setup Snacks debug and toggle functionality";
-      event = ["User"];
-      pattern = ["DeferredUIEnter"]; # triggered by lz.n after load() is done and after UIEnter
+      event = [ "User" ];
+      pattern = [ "DeferredUIEnter" ]; # triggered by lz.n after load() is done and after UIEnter
       callback = mkLuaInline ''
         function()
           -- Setup some globals for debugging

@@ -1,12 +1,15 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.nvim.binds) mkKeymap;
 
-  mkPickerMap = key: body: desc:
+  mkPickerMap =
+    key: body: desc:
     mkKeymap "n" key "function() ${body} end" {
       inherit desc;
       lua = true;
     };
-in {
+in
+{
   vim.keymaps = [
     # Main
     (mkPickerMap "<leader><space>" "Snacks.picker.files()" "Find Files")
@@ -18,7 +21,9 @@ in {
 
     # Find
     (mkPickerMap "<leader>fb" "Snacks.picker.buffers()" "Buffers")
-    (mkPickerMap "<leader>fc" "Snacks.picker.files({ cwd = '~/Code/lackac/nvf-config' })" "Find Config File")
+    (mkPickerMap "<leader>fc" "Snacks.picker.files({ cwd = '~/Code/lackac/nvf-config' })"
+      "Find Config File"
+    )
     (mkPickerMap "<leader>ff" "Snacks.picker.files()" "Find Files")
     (mkPickerMap "<leader>fg" "Snacks.picker.git_files()" "Find Git Files")
     (mkPickerMap "<leader>fp" "Snacks.picker.projects()" "Projects")
@@ -58,12 +63,20 @@ in {
     (mkPickerMap "<leader>st" "Snacks.picker.todo_comments()" "Todo")
 
     (mkPickerMap "<leader>su" "Snacks.picker.undo()" "Undo History")
-    ((mkPickerMap "<leader>sw" "Snacks.picker.grep_word()" "Visual selection or word") // {mode = ["n" "x"];})
+    (
+      (mkPickerMap "<leader>sw" "Snacks.picker.grep_word()" "Visual selection or word")
+      // {
+        mode = [
+          "n"
+          "x"
+        ];
+      }
+    )
 
     # LSP
     (mkPickerMap "gd" "Snacks.picker.lsp_definitions()" "Goto Definition")
     (mkPickerMap "gD" "Snacks.picker.lsp_declarations()" "Goto Declaration")
-    ((mkPickerMap "gr" "Snacks.picker.lsp_references()" "References") // {nowait = true;})
+    ((mkPickerMap "gr" "Snacks.picker.lsp_references()" "References") // { nowait = true; })
     (mkPickerMap "gI" "Snacks.picker.lsp_implementations()" "Goto Implementation")
     (mkPickerMap "gy" "Snacks.picker.lsp_type_definitions()" "Goto T[y]pe Definition")
     (mkPickerMap "<leader>ss" "Snacks.picker.lsp_symbols()" "LSP Symbols")

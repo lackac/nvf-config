@@ -1,6 +1,8 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.nvim.dag) entryBefore;
-in {
+in
+{
   imports = [
     ./borders.nix
     ./bufferline.nix
@@ -12,7 +14,7 @@ in {
     ./smartcolumn.nix
   ];
 
-  vim.luaConfigRC.ui-utils = entryBefore ["lazyConfigs"] ''
+  vim.luaConfigRC.ui-utils = entryBefore [ "lazyConfigs" ] ''
     local libui = {}
 
     libui.root = function(width)

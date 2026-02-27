@@ -2,7 +2,11 @@
   vim.ui.smartcolumn = {
     enable = true;
     setupOpts = {
-      colorcolumn = ["80" "100" "120"];
+      colorcolumn = [
+        "80"
+        "100"
+        "120"
+      ];
       disabled_filetypes = [
         "help"
         "text"

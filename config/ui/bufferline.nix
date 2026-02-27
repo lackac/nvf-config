@@ -1,6 +1,8 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
-in {
+in
+{
   vim.statusline.lualine.setupOpts = {
     tabline = {
       lualine_a = [

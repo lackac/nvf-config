@@ -1,10 +1,12 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib.generators) mkLuaInline;
-in {
+in
+{
   vim.autocmds = [
     {
       desc = "Effectively disable the command line window to prevent opening it accidentally when pressing 'q:'";
-      event = ["CmdWinEnter"];
+      event = [ "CmdWinEnter" ];
       callback = mkLuaInline ''
         function()
           vim.cmd("quit")
@@ -14,7 +16,11 @@ in {
 
     {
       desc = "Check if we need to reload the file when it changed";
-      event = ["FocusGained" "TermClose" "TermLeave"];
+      event = [
+        "FocusGained"
+        "TermClose"
+        "TermLeave"
+      ];
       callback = mkLuaInline ''
         function()
           if vim.o.buftype ~= "nofile" then
@@ -26,7 +32,7 @@ in {
 
     {
       desc = "Highlight on yank";
-      event = ["TextYankPost"];
+      event = [ "TextYankPost" ];
       callback = mkLuaInline ''
         function()
           (vim.hl or vim.highlight).on_yank()
@@ -36,7 +42,7 @@ in {
 
     {
       desc = "resize splits if window got resized";
-      event = ["VimResized"];
+      event = [ "VimResized" ];
       callback = mkLuaInline ''
         function()
           local current_tab = vim.fn.tabpagenr()
@@ -48,7 +54,7 @@ in {
 
     {
       desc = "go to last loc when opening a buffer";
-      event = ["BufReadPost"];
+      event = [ "BufReadPost" ];
       callback = mkLuaInline ''
         function(event)
           local exclude = { "gitcommit" }
@@ -68,7 +74,7 @@ in {
 
     {
       desc = "close some filetypes with <q>";
-      event = ["FileType"];
+      event = [ "FileType" ];
       pattern = [
         "PlenaryTestPopup"
         "checkhealth"
@@ -105,8 +111,8 @@ in {
 
     {
       desc = "make it easier to close man-files when opened inline";
-      event = ["FileType"];
-      pattern = ["man"];
+      event = [ "FileType" ];
+      pattern = [ "man" ];
       callback = mkLuaInline ''
         function(event)
           vim.bo[event.buf].buflisted = false
