@@ -8,6 +8,9 @@ in
     languages.markdown = {
       enable = true;
 
+      format.type = [ "mdformat" ];
+      extraDiagnostics.types = [ "markdownlint-cli2" ];
+
       extensions.markview-nvim = {
         enable = true;
         setupOpts = {

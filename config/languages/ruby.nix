@@ -13,6 +13,8 @@ in
     languages.ruby = {
       enable = true;
 
+      lsp.servers = [ "ruby_lsp" ];
+
       format.enable = false;
       extraDiagnostics.enable = false;
     };
