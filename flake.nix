@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nvf = {
-      url = "github:notashelf/nvf/v0.8";
+      url = "github:notashelf/nvf";
       # url = "path:/Users/lackac/Code/notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -44,7 +44,7 @@
 
     devShells = forEachSystem (
       pkgs: let
-        packages = self.packages.${pkgs.system};
+        packages = self.packages.${pkgs.stdenv.hostPlatform.system};
       in {
         default = pkgs.mkShell {
           packages = with pkgs;

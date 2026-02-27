@@ -12,15 +12,6 @@
     };
     indent.enable = true;
     highlight.enable = true;
-    incrementalSelection.enable = true;
-
-    mappings.incrementalSelection = {
-      incrementByNode = "<C-S>";
-      decrementByNode = "<BS>";
-      init = null;
-      incrementByScope = null;
-    };
-
     grammars = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
       # these are languages I might need to browse occasionally but don't need more support than a grammar
       asm
