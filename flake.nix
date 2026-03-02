@@ -12,6 +12,10 @@
       # url = "path:/Users/lackac/Code/notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    opencode-nvim = {
+      url = "github:nickjvandyke/opencode.nvim";
+      flake = false;
+    };
   };
 
   outputs =
@@ -20,6 +24,7 @@
       nixpkgs,
       treefmt-nix,
       nvf,
+      opencode-nvim,
       ...
     }:
     let
@@ -30,7 +35,22 @@
         "x86_64-darwin"
         "aarch64-darwin"
       ];
-      pkgsFor = system: import nixpkgs { inherit system; };
+      opencodeOverlay = final: prev: {
+        vimPlugins = prev.vimPlugins // {
+          opencode-nvim = prev.vimUtils.buildVimPlugin {
+            pname = "opencode-nvim";
+            version = "unstable";
+            src = opencode-nvim;
+          };
+        };
+      };
+
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          overlays = [ opencodeOverlay ];
+        };
       forEachSystem = f: lib.genAttrs systems (system: f (pkgsFor system));
       treefmtEval = forEachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
     in

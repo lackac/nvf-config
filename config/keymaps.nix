@@ -18,6 +18,15 @@ in
     setupOpts = {
       preset = "helix";
       spec = [
+        (
+          (wkGroup "<leader>a" "assistant")
+          // {
+            icon = {
+              icon = "󰚩 ";
+              color = "grey";
+            };
+          }
+        )
         (wkGroup "<leader>c" "code")
         (wkGroup "<leader>d" "debug")
         (wkGroup "<leader>dp" "profiler")

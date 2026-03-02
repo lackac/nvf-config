@@ -20,6 +20,7 @@
       incsearch = true;
 
       # Editing
+      autoread = true;
       timeoutlen = 300;
       linebreak = true;
       whichwrap = "<,>,[,],h,l,b,s";

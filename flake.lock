@@ -115,10 +115,27 @@
         "type": "github"
       }
     },
+    "opencode-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772457392,
+        "narHash": "sha256-4rdqglvsnf7BWd5eXHL+/KGV92puz1ZDmeCdFuR+Qjs=",
+        "owner": "nickjvandyke",
+        "repo": "opencode.nvim",
+        "rev": "68ad02666cf050a79ae16e1b3a4df2766e0c012f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nickjvandyke",
+        "repo": "opencode.nvim",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
         "nvf": "nvf",
+        "opencode-nvim": "opencode-nvim",
         "treefmt-nix": "treefmt-nix"
       }
     },
