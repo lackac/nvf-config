@@ -8,31 +8,26 @@ do
 		return cleaned
 	end
 
-	local function project_root()
-		local cwd = vim.fn.getcwd()
-		local proc = vim.system({ "git", "-C", cwd, "rev-parse", "--show-toplevel" }, { text = true }):wait()
-		if proc.code == 0 then
-			local root = trim(proc.stdout)
-			if root ~= "" then
-				return root
-			end
-		end
-		return cwd
-	end
-
-	local function project_port()
-		local root = project_root()
-		local hash = 5381
-		for i = 1, #root do
-			hash = (hash * 33 + root:byte(i)) % 100000
+	local function helper_port()
+		if vim.fn.executable("opencode-session") ~= 1 then
+			return nil
 		end
 
-		local min_port = 47000
-		local max_port = 48999
-		return min_port + (hash % (max_port - min_port + 1))
+		local proc = vim.system({ "opencode-session", "--print-port" }, { text = true }):wait()
+		if proc.code ~= 0 then
+			return nil
+		end
+
+		local resolved = tonumber(trim(proc.stdout))
+		if not resolved or resolved <= 0 then
+			return nil
+		end
+
+		return resolved
 	end
 
-	local port = tonumber(vim.env.OPENCODE_PORT) or project_port()
+	local fallback_port = 47000
+	local port = tonumber(vim.env.OPENCODE_PORT) or helper_port() or fallback_port
 	local cmd = "opencode --port " .. port
 
 	function tmux.in_session()
