@@ -25,7 +25,7 @@ let
     "rust"
     "sql"
     "terraform"
-    "ts"
+    "typescript"
     "typst"
   ];
 
