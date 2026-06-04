@@ -9,14 +9,11 @@ in
   };
 
   vim.keymaps = [
-    (mkKeymap [ "n" "x" ] "<leader>aa"
-      ''function() require("opencode").ask("@this: ", { submit = true }) end''
-      {
-        desc = "Ask OpenCode";
-        lua = true;
-        silent = true;
-      }
-    )
+    (mkKeymap [ "n" "x" ] "<leader>aa" ''function() require("opencode").ask("@this: ") end'' {
+      desc = "Ask OpenCode";
+      lua = true;
+      silent = true;
+    })
     (mkKeymap [ "n" "x" ] "<leader>a." ''function() require("opencode").select() end'' {
       desc = "OpenCode Actions";
       lua = true;
@@ -27,11 +24,14 @@ in
       lua = true;
       silent = true;
     })
-    (mkKeymap "n" "<leader>al" ''function() require("opencode").select_session() end'' {
-      desc = "List OpenCode Sessions";
-      lua = true;
-      silent = true;
-    })
+    (mkKeymap "n" "<leader>al"
+      ''function() require("opencode").select({ prompts = false, server = false, commands = { ["session.select"] = "Select session" } }) end''
+      {
+        desc = "List OpenCode Sessions";
+        lua = true;
+        silent = true;
+      }
+    )
     (mkKeymap "n" "<leader>a<Tab>"
       ''
         function()
