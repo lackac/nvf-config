@@ -1,88 +1,90 @@
+{ lib, ... }:
+let
+  inherit (lib.generators) mkLuaInline;
+in
 {
   vim.statusline.lualine = {
     enable = true;
-    disabledFiletypes.statusline = [ "snacks_dashboard" ];
-    refresh = {
+    setupOpts.options.disabled_filetypes.statusline = [ "snacks_dashboard" ];
+    setupOpts.options.refresh = {
       statusline = 100;
       tabline = 100;
       winbar = 100;
     };
-    sectionSeparator = {
+    setupOpts.options.section_separators = {
       left = "";
       right = "";
     };
-    componentSeparator = {
+    setupOpts.options.component_separators = {
       left = "";
       right = "";
     };
 
-    activeSection = {
-      a = [
-        ''{ "mode" }''
+    setupOpts.sections = {
+      lualine_a = [
+        { "@1" = "mode"; }
       ];
 
-      b = [
-        ''
-          {
-            "filetype",
-            colored = true,
-            icon_only = true,
-            separator = "",
-            padding = { left = 1, right = 0 },
-          }
-        ''
-        ''
-          {
-            "filename",
-            path = 1,
-            symbols = {modified = '', readonly = ''},
-            padding = { left = 0, right = 1 },
-          }
-        ''
+      lualine_b = [
+        {
+          "@1" = "filetype";
+          colored = true;
+          icon_only = true;
+          separator = "";
+          padding = {
+            left = 1;
+            right = 0;
+          };
+        }
+        {
+          "@1" = "filename";
+          path = 1;
+          symbols = {
+            modified = "";
+            readonly = "";
+          };
+          padding = {
+            left = 0;
+            right = 1;
+          };
+        }
       ];
 
-      c = [
-        ''
-          {
-            "diff",
-            colored = true,
-            symbols = {
-              added    = " ",
-              modified = " ",
-              removed  = " ",
-            },
-          }
-        ''
+      lualine_c = [
+        {
+          "@1" = "diff";
+          colored = true;
+          symbols = {
+            added = " ";
+            modified = " ";
+            removed = " ";
+          };
+        }
       ];
 
-      x = [
-        ''
+      lualine_x = [
+        (mkLuaInline ''
           require('snacks').profiler.status()
-        ''
-        ''
-          {
-            require("noice").api.status.command.get,
-            cond = require("noice").api.status.command.has,
-            color = function() return { fg = Snacks.util.color("Statement") } end,
-          }
-        ''
-        ''
-          {
-            require("noice").api.status.mode.get,
-            cond = require("noice").api.status.mode.has,
-            color = function() return { fg = Snacks.util.color("Constant") } end,
-          }
-        ''
-        ''
-          {
-            -- Lsp server name
+        '')
+        {
+          "@1" = mkLuaInline ''require("noice").api.status.command.get'';
+          cond = mkLuaInline ''require("noice").api.status.command.has'';
+          color = mkLuaInline ''function() return { fg = Snacks.util.color("Statement") } end'';
+        }
+        {
+          "@1" = mkLuaInline ''require("noice").api.status.mode.get'';
+          cond = mkLuaInline ''require("noice").api.status.mode.has'';
+          color = mkLuaInline ''function() return { fg = Snacks.util.color("Constant") } end'';
+        }
+        {
+          "@1" = mkLuaInline ''
             function()
               local buf_ft = vim.bo.filetype
               local excluded_buf_ft = { toggleterm = true, NvimTree = true, ["neo-tree"] = true, TelescopePrompt = true }
 
               if excluded_buf_ft[buf_ft] then
                 return ""
-                end
+              end
 
               local bufnr = vim.api.nvim_get_current_buf()
               local clients = vim.lsp.get_clients({ bufnr = bufnr })
@@ -97,40 +99,55 @@
               end
 
               return table.concat(active_clients, ", ")
-            end,
-            icon = ' ',
-          }
-        ''
-        ''
-          {
-            "diagnostics",
-            sources = {'nvim_lsp', 'nvim_diagnostic', 'nvim_diagnostic', 'vim_lsp', 'coc'},
-            symbols = {error = '󰅙  ', warn = '  ', info = '  ', hint = '󰌵 '},
-            colored = true,
-            update_in_insert = false,
-            always_visible = false,
-            diagnostics_color = {
-              color_error = { fg = 'red' },
-              color_warn = { fg = 'yellow' },
-              color_info = { fg = 'cyan' },
-            },
-          }
-        ''
+            end
+          '';
+          icon = " ";
+        }
+        {
+          "@1" = "diagnostics";
+          sources = [
+            "nvim_lsp"
+            "nvim_diagnostic"
+            "vim_lsp"
+            "coc"
+          ];
+          symbols = {
+            error = "󰅙  ";
+            warn = "  ";
+            info = "  ";
+            hint = "󰌵 ";
+          };
+          colored = true;
+          update_in_insert = false;
+          always_visible = false;
+          diagnostics_color = {
+            color_error.fg = "red";
+            color_warn.fg = "yellow";
+            color_info.fg = "cyan";
+          };
+        }
       ];
 
-      y = [
-        ''
-          { "branch" }
-        ''
+      lualine_y = [
+        { "@1" = "branch"; }
       ];
 
-      z = [
-        ''
-          { "progress", separator = " ", padding = { left = 1, right = 0 } }
-        ''
-        ''
-          { "location", padding = { left = 0, right = 1 } }
-        ''
+      lualine_z = [
+        {
+          "@1" = "progress";
+          separator = " ";
+          padding = {
+            left = 1;
+            right = 0;
+          };
+        }
+        {
+          "@1" = "location";
+          padding = {
+            left = 0;
+            right = 1;
+          };
+        }
       ];
     };
   };

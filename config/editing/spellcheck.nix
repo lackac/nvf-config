@@ -3,7 +3,5 @@
     enable = true;
 
     languages = [ "en" ];
-
-    programmingWordlist.enable = true;
   };
 }
