@@ -3,5 +3,6 @@
     ./diffview.nix
     ./gitsigns.nix
     ./neogit.nix
+    ./review.nix
   ];
 }

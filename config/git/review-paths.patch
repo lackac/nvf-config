@@ -1,0 +1,60 @@
+diff --git a/lua/review/hooks.lua b/lua/review/hooks.lua
+index f49ab58..2dc2a91 100644
+--- a/lua/review/hooks.lua
++++ b/lua/review/hooks.lua
+@@ -11,1 +11,11 @@ local current_tabpage = nil
+ local buf_augroup = nil
++
++---@param path string|table|nil
++---@return string|nil
++local function path_value(path)
++  if type(path) == "table" then
++    return path.absolute ~= "" and path.absolute or path.relative
++  end
++  return path
++end
++
+@@ -13,7 +23,8 @@ local buf_augroup = nil
+ ---Set filetype for a buffer based on file path
+ ---@param bufnr number
+----@param path string|nil
++---@param path string|table|nil
+ local function set_buffer_filetype(bufnr, path)
++  path = path_value(path)
+   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+     return
+   end
+@@ -57,9 +68,10 @@ function M.get_session()
+ ---Relativize a path against the git root for consistent storage/lookup
+----@param path string|nil
++---@param path string|table|nil
+ ---@param lifecycle table
+ ---@param tabpage number
+ ---@return string|nil
+ local function relativize_path(path, lifecycle, tabpage)
++  path = path_value(path)
+   if not path then
+     return nil
+   end
+diff --git a/lua/review/keymaps.lua b/lua/review/keymaps.lua
+index 0b50931..ca508ac 100644
+--- a/lua/review/keymaps.lua
++++ b/lua/review/keymaps.lua
+@@ -229,7 +229,7 @@ local function setup_buffer_keymaps(bufnr, readonly)
+       local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+       if not ok then return end
+       local tabpage = vim.api.nvim_get_current_tabpage()
+-      local explorer_obj = lifecycle.get_explorer(tabpage)
++      local explorer_obj = lifecycle.get_panel_view(tabpage)
+       if explorer_obj then
+         require("codediff.ui.explorer")["navigate_" .. direction](explorer_obj)
+         vim.defer_fn(jump_to_first_hunk, 100)
+@@ -274,7 +274,7 @@ local function setup_buffer_keymaps(bufnr, readonly)
+     local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+     if not ok then return end
+     local tabpage = vim.api.nvim_get_current_tabpage()
+-    local explorer_obj = lifecycle.get_explorer(tabpage)
++    local explorer_obj = lifecycle.get_panel_view(tabpage)
+     if explorer_obj then
+       require("codediff.ui.explorer").toggle_visibility(explorer_obj)
+     end

@@ -1,0 +1,72 @@
+diff --git a/lua/review/config.lua b/lua/review/config.lua
+index 4adae3b..2d91d08 100644
+--- a/lua/review/config.lua
++++ b/lua/review/config.lua
+@@ -25,6 +25,7 @@ local M = {}
+ ---@field list_comments string|false
+ ---@field export_clipboard string|false
+ ---@field send_sidekick string|false
++---@field send_opencode string|false
+ ---@field clear_comments string|false
+ ---@field close string|false
+ ---@field toggle_readonly string|false
+@@ -72,6 +73,7 @@ M.defaults = {
+     list_comments = "c",
+     export_clipboard = "C",
+     send_sidekick = "S",
++    send_opencode = "O",
+     clear_comments = "<C-r>",
+     close = "q",
+     toggle_readonly = "R",
+diff --git a/lua/review/export.lua b/lua/review/export.lua
+index 18bfe21..de8fcad 100644
+--- a/lua/review/export.lua
++++ b/lua/review/export.lua
+@@ -119,1 +119,18 @@
++function M.to_opencode()
++  local ok, opencode = pcall(require, "opencode")
++  if not ok then
++    notify("opencode.nvim not installed", vim.log.levels.ERROR)
++    return
++  end
++
++  local count = store.count()
++  if count == 0 then
++    notify("No comments to send", vim.log.levels.WARN)
++    return
++  end
++
++  opencode.prompt(M.generate_markdown())
++  notify(string.format("Sent %d comment(s) to OpenCode", count), vim.log.levels.INFO)
++end
++
+ return M
+diff --git a/lua/review/keymaps.lua b/lua/review/keymaps.lua
+index 6b58d18..44bec03 100644
+--- a/lua/review/keymaps.lua
++++ b/lua/review/keymaps.lua
+@@ -118,3 +118,4 @@ local function show_help()
+   entry("export_clipboard", "Export to clipboard", action_entries)
+   entry("send_sidekick", "Send to sidekick", action_entries)
++  entry("send_opencode", "Send to OpenCode", action_entries)
+   entry("clear_comments", "Clear all", action_entries)
+@@ -247,6 +248,7 @@ local function set_buffer_keymaps(bufnr)
+     set(km.list_comments, function() comments.list() end, "List all comments")
+     set(km.export_clipboard, function() export.to_clipboard() end, "Export to clipboard")
+     set(km.send_sidekick, function() export.to_sidekick() end, "Send to sidekick")
++    set(km.send_opencode, function() export.to_opencode() end, "Send to OpenCode")
+     set(km.clear_comments, function() require("review").clear() end, "Clear all comments")
+     set(km.next_comment, function() comments.goto_next() end, "Next comment")
+     set(km.prev_comment, function() comments.goto_prev() end, "Previous comment")
+diff --git a/plugin/review.lua b/plugin/review.lua
+index 0751ff1..5e4f97c 100644
+--- a/plugin/review.lua
++++ b/plugin/review.lua
+@@ -10,6 +10,7 @@ local subcommands = {
+   export = { fn = function() require("review").export() end, desc = "Export comments to clipboard" },
+   preview = { fn = function() require("review").preview() end, desc = "Preview exported markdown" },
+   sidekick = { fn = function() require("review.export").to_sidekick() end, desc = "Send comments to sidekick.nvim" },
++  opencode = { fn = function() require("review.export").to_opencode() end, desc = "Send comments to opencode.nvim" },
+   clear = { fn = function() require("review").clear() end, desc = "Clear all comments" },
+   list = { fn = function() require("review.comments").list() end, desc = "List all comments" },
+   toggle = { fn = function() require("review").toggle_readonly() end, desc = "Toggle readonly/edit mode" },
