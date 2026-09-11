@@ -92,6 +92,7 @@
             name = "vimplugin-codediff.nvim-4.0.2";
             version = "4.0.2";
             src = codediff-nvim;
+            patches = [ ./config/git/codediff-staging.patch ];
           };
           review-nvim = prev.vimUtils.buildVimPlugin {
             pname = "review.nvim";

@@ -41,6 +41,7 @@
           line_insert = "CodeDiffAdaptiveInsert";
           line_delete = "CodeDiffAdaptiveDelete";
         };
+        setupOpts.keymaps.view.stage_hunk = "s";
       };
 
       "review.nvim" = {
