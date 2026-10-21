@@ -44,7 +44,20 @@
         "aarch64-linux"
         "aarch64-darwin"
       ];
-      pluginOverlay = final: prev: {
+      packageOverlay = final: prev: {
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (_: pythonPrev: {
+            diff-cover = pythonPrev.diff-cover.overridePythonAttrs (old: {
+              # Pygments 2.21 emits literal quotes in highlighted HTML.
+              # https://github.com/NixOS/nixpkgs/issues/576851
+              postPatch = (old.postPatch or "") + ''
+                substituteInPlace tests/fixtures/{pycodestyle,pyflakes,pylint}_violations_report.html \
+                  --replace-fail '&quot;' '"'
+              '';
+            });
+          })
+        ];
+
         codediff-watcher =
           let
             version = "0.23.2";
@@ -111,7 +124,7 @@
         system:
         import nixpkgs {
           inherit system;
-          overlays = [ pluginOverlay ];
+          overlays = [ packageOverlay ];
         };
       forEachSystem = f: lib.genAttrs systems (system: f (pkgsFor system));
       treefmtEval = forEachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
