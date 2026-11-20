@@ -24,6 +24,14 @@
       url = "github:georgeguimaraes/review.nvim/v1.9.1";
       flake = false;
     };
+    smart-splits-backend-rex = {
+      url = "github:rawnly/smart-splits-backend-rex/68f54325975ad47b03a968a3f201081bfadc0ff5";
+      flake = false;
+    };
+    smart-splits-backend-tmux = {
+      url = "github:smart-splits-nvim/backend-tmux/9e9e6aa9b3eb7a8d3896a993611622ac97abff52";
+      flake = false;
+    };
   };
 
   outputs =
@@ -35,6 +43,8 @@
       opencode-nvim,
       codediff-nvim,
       review-nvim,
+      smart-splits-backend-rex,
+      smart-splits-backend-tmux,
       ...
     }:
     let
@@ -83,6 +93,18 @@
           };
 
         vimPlugins = prev.vimPlugins // {
+          smart-splits-backend-rex = prev.vimUtils.buildVimPlugin {
+            pname = "smart-splits-backend-rex";
+            version = "68f5432";
+            src = smart-splits-backend-rex;
+            checkInputs = [ prev.vimPlugins.smart-splits-nvim ];
+          };
+          smart-splits-backend-tmux = prev.vimUtils.buildVimPlugin {
+            pname = "smart-splits-backend-tmux";
+            version = "9e9e6aa";
+            src = smart-splits-backend-tmux;
+            checkInputs = [ prev.vimPlugins.smart-splits-nvim ];
+          };
           opencode-nvim = prev.vimUtils.buildVimPlugin {
             pname = "opencode-nvim";
             version = "unstable";
@@ -157,8 +179,24 @@
         pkgs: treefmtEval.${pkgs.stdenv.hostPlatform.system}.config.build.wrapper
       );
 
-      checks = forEachSystem (pkgs: {
-        formatting = treefmtEval.${pkgs.stdenv.hostPlatform.system}.config.build.check self;
-      });
+      checks = forEachSystem (
+        pkgs:
+        let
+          navigationNeovim =
+            (nvf.lib.neovimConfiguration {
+              inherit pkgs;
+              modules = [ ./config/navigation/smart-splits.nix ];
+            }).neovim;
+        in
+        {
+          formatting = treefmtEval.${pkgs.stdenv.hostPlatform.system}.config.build.check self;
+          smart-splits = pkgs.runCommand "smart-splits-navigation" { } ''
+            export HOME="$TMPDIR"
+            unset TMUX TMUX_PANE REX_SESSION REX_BLOCK
+            ${navigationNeovim}/bin/nvim --headless -c 'luafile ${./tests/smart-splits.lua}'
+            touch "$out"
+          '';
+        }
+      );
     };
 }

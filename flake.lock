@@ -126,7 +126,43 @@
         "nvf": "nvf",
         "opencode-nvim": "opencode-nvim",
         "review-nvim": "review-nvim",
+        "smart-splits-backend-rex": "smart-splits-backend-rex",
+        "smart-splits-backend-tmux": "smart-splits-backend-tmux",
         "treefmt-nix": "treefmt-nix"
+      }
+    },
+    "smart-splits-backend-rex": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793973999,
+        "narHash": "sha256-91iWKOJL+qFPaHEMMNt08SV7xoipMOKqIgZRuZpDs+w=",
+        "owner": "rawnly",
+        "repo": "smart-splits-backend-rex",
+        "rev": "68f54325975ad47b03a968a3f201081bfadc0ff5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rawnly",
+        "repo": "smart-splits-backend-rex",
+        "rev": "68f54325975ad47b03a968a3f201081bfadc0ff5",
+        "type": "github"
+      }
+    },
+    "smart-splits-backend-tmux": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790943526,
+        "narHash": "sha256-RcJdM6wFHZOEOK+cXVIT10anktqGgIilPmojFpdY+4g=",
+        "owner": "smart-splits-nvim",
+        "repo": "backend-tmux",
+        "rev": "9e9e6aa9b3eb7a8d3896a993611622ac97abff52",
+        "type": "github"
+      },
+      "original": {
+        "owner": "smart-splits-nvim",
+        "repo": "backend-tmux",
+        "rev": "9e9e6aa9b3eb7a8d3896a993611622ac97abff52",
+        "type": "github"
       }
     },
     "treefmt-nix": {
