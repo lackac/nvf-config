@@ -187,6 +187,11 @@
               inherit pkgs;
               modules = [ ./config/navigation/smart-splits.nix ];
             }).neovim;
+          assistantNeovim =
+            (nvf.lib.neovimConfiguration {
+              inherit pkgs;
+              modules = [ ./config/coding/assistant.nix ];
+            }).neovim;
         in
         {
           formatting = treefmtEval.${pkgs.stdenv.hostPlatform.system}.config.build.check self;
@@ -194,6 +199,13 @@
             export HOME="$TMPDIR"
             unset TMUX TMUX_PANE REX_SESSION REX_BLOCK
             ${navigationNeovim}/bin/nvim --headless -c 'luafile ${./tests/smart-splits.lua}'
+            touch "$out"
+          '';
+          opencode = pkgs.runCommand "opencode-panes" { } ''
+            export HOME="$TMPDIR"
+            unset TMUX TMUX_PANE REX_SERVER
+            export REX_SESSION=session:ab REX_BLOCK=block:aa
+            ${assistantNeovim}/bin/nvim --headless -c 'luafile ${./tests/opencode.lua}'
             touch "$out"
           '';
         }

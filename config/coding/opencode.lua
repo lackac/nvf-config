@@ -1,287 +1,278 @@
 do
-	local tmux = {
-		pane_id = nil,
-	}
+  local function run(argv, ...)
+    local command = vim.list_extend(vim.list_extend({}, argv), { ... })
+    local result = vim.system(command, { text = true }):wait(2000)
+    if result.code == 0 then
+      return ((result.stdout or ""):gsub("\n$", ""))
+    end
+    local err = vim.trim(result.stderr or "")
+    return nil, err ~= "" and err or (argv[1] .. " exited with status " .. result.code)
+  end
 
-	local function trim(value)
-		local cleaned = (value or ""):gsub("^%s+", ""):gsub("%s+$", "")
-		return cleaned
-	end
+  local function json(argv, ...)
+    local out, err = run(argv, ...)
+    if not out then
+      return nil, err
+    end
+    local ok, decoded = pcall(vim.json.decode, out, { luanil = { object = true } })
+    if ok and type(decoded) == "table" then
+      return decoded
+    end
+    return nil, "Invalid Rex response"
+  end
 
-	local function helper_port()
-		if vim.fn.executable("opencode-session") ~= 1 then
-			return nil
-		end
+  local function opencode_process(name)
+    return name == "opencode" or name == ".opencode2-wrapped" or name == ".opencode2-wrap"
+  end
 
-		local proc = vim.system({ "opencode-session", "--print-port" }, { text = true }):wait()
-		if proc.code ~= 0 then
-			return nil
-		end
+  local function tmux_backend()
+    local socket, pid, index = (vim.env.TMUX or ""):match("^(.+),(%d+),(%d+)$")
+    local origin = vim.env.TMUX_PANE or ""
+    if not socket or not origin:match("^%%%d+$") or vim.fn.executable("tmux") ~= 1 then
+      return
+    end
 
-		local resolved = tonumber(trim(proc.stdout))
-		if not resolved or resolved <= 0 then
-			return nil
-		end
+    local argv = { "tmux", "-S", socket }
+    local session = "$" .. index
+    local format = "#{pid}\t#{session_id}\t#{window_id}\t#{pane_id}\t#{pane_pid}\t#{pane_dead}"
+    local out = run(argv, "list-panes", "-s", "-t", session .. ":", "-F", format)
+    local panes = {}
+    for line in (out or ""):gmatch("[^\n]+") do
+      local server, sid, wid, id, child, dead =
+        line:match("^(%d+)\t(%$%d+)\t(@%d+)\t(%%%d+)\t(%d+)\t([01])$")
+      if server == pid and sid == session then
+        panes[id] = { window = wid, child = child, dead = dead == "1" }
+      end
+    end
+    if not panes[origin] or panes[origin].dead then
+      return
+    end
+    panes[origin] = nil
 
-		return resolved
-	end
+    return {
+      scope = vim.env.TMUX,
+      panes = panes,
+      running = function(id, cwd)
+        local info = run(argv, "display-message", "-p", "-t", id,
+          "#{pid}\t#{session_id}\t#{pane_id}\t#{pane_current_command}\t#{alternate_on}\t#{pane_in_mode}\t#{pane_current_path}")
+        local server, sid, found, command, alt, mode, path =
+          (info or ""):match("^(%d+)\t(%$%d+)\t(%%%d+)\t([^\t]+)\t([01])\t(%d+)\t(.+)$")
+        return server == pid and sid == session and found == id
+          and alt == "1" and mode == "0" and opencode_process(command)
+          and vim.uv.fs_realpath(path) == cwd
+      end,
+      start = function(cwd)
+        -- tmux expands formats in -c, even though we pass the path as an argv element.
+        local path = cwd:gsub("#", "##")
+        local result, err = run(argv, "split-window", "-h", "-d", "-p", "38", "-t", origin, "-P",
+          "-F", "#{pane_id}\t#{pane_pid}", "-c", path, "--", "exec opencode")
+        local id, child = (result or ""):match("^(%%%d+)\t(%d+)$")
+        return id and { id = id, child = child }, err
+      end,
+      focus = function(id)
+        local pane = panes[id]
+        if pane then
+          return run(argv, "select-window", "-t", session .. ":" .. pane.window, ";", "select-pane", "-t", id)
+        end
+        return run(argv, "select-pane", "-t", id) -- Newly split in the origin window.
+      end,
+      prefix = function(id)
+        return run(argv, "send-keys", "-t", id, "C-x")
+      end,
+      close = function(id)
+        return run(argv, "kill-pane", "-t", id)
+      end,
+    }
+  end
 
-	local fallback_port = 47000
-	local port = tonumber(vim.env.OPENCODE_PORT) or helper_port() or fallback_port
-	local cmd = "opencode --port " .. port
+  local function rex_backend()
+    local session, origin = vim.env.REX_SESSION or "", vim.env.REX_BLOCK or ""
+    if not session:match("^session:[%x-]+$") or not origin:match("^block:[%x-]+$") then
+      return
+    end
+    local argv = { "rex", "--autostart=false" }
+    local endpoint = vim.env.REX_SERVER
+    if endpoint and endpoint ~= "" then
+      if not endpoint:match("^unix:///") then
+        return nil, "Rex pane controls require a local Unix socket"
+      end
+      vim.list_extend(argv, { "-S", endpoint })
+    end
+    if vim.fn.executable("rex") ~= 1 then
+      return nil, "Rex CLI not found"
+    end
+    local identity, err = json(argv, "whoami", "--json")
+    if not identity then
+      return nil, err
+    end
+    if not identity.host_id or not (identity.endpoint or ""):match("^unix:///") then
+      return nil, "Rex pane controls require a local Unix socket"
+    end
 
-	function tmux.in_session()
-		return vim.env.TMUX ~= nil and vim.env.TMUX ~= ""
-	end
+    argv = { "rex", "--autostart=false", "-S", identity.endpoint }
+    local terminal = "com.superlogical.terminal"
+    local listing
+    listing, err = json(argv, "block", "ls", "-s", session, "--json")
+    if not listing then
+      return nil, err
+    end
+    local panes = {}
+    for _, block in ipairs(listing.blocks or {}) do
+      if block.placement == "placed" and block.creator_name == terminal and block.host_id == identity.host_id
+        and (block.block_id or ""):match("^block:[%x-]+$")
+      then
+        panes[block.block_id] = {}
+      end
+    end
+    if not panes[origin] then
+      return nil, "The originating Rex terminal is not on this host"
+    end
+    panes[origin] = nil
 
-	function tmux.run(args)
-		if vim.fn.executable("tmux") ~= 1 then
-			return false, "", "tmux executable not found"
-		end
+    return {
+      scope = identity.endpoint .. "\n" .. identity.host_id .. "\n" .. session,
+      panes = panes,
+      running = function(id, cwd)
+        local process = json(argv, "block", "call", "-s", session, "-b", id, "process")
+        local fg = process and process.foreground
+        if fg and (opencode_process(fg.name) or opencode_process(vim.fs.basename(fg.invoked_path or "")))
+          and fg.cwd and vim.uv.fs_realpath(fg.cwd) == cwd
+        then
+          local modes = json(argv, "block", "call", "-s", session, "-b", id, "modes")
+          return modes and modes.screen == "alternate"
+        end
+      end,
+      start = function(cwd)
+        -- Rex's macOS login(1) path ignores command and cwd. Run the login shell explicitly.
+        local args = vim.json.encode({
+          anchor_id = origin,
+          direction = "horizontal",
+          side = "after",
+          ratio = 0.62,
+          focus = false,
+          layout = { block = { flavor = terminal .. ".shell", options = {
+            cwd = cwd, shell = "none", login = false,
+            command = { vim.env.SHELL or "/bin/sh", "-lic", "exec opencode" },
+          } } },
+        })
+        local result, start_err = json(argv, "api", "call", "-s", session, "session.new_split", args)
+        local id = result and result.block_ids and result.block_ids[1]
+        return id and id:match("^block:[%x-]+$") and { id = id }, start_err
+      end,
+      focus = function(id)
+        return run(argv, "focus", "-s", session, id)
+      end,
+      prefix = function(id)
+        return run(argv, "send-key", "-s", session, "-b", id, "ctrl+x")
+      end,
+      close = function(id)
+        return run(argv, "block", "close", "-s", session, id)
+      end,
+    }
+  end
 
-		local proc = vim.system(vim.list_extend({ "tmux" }, args), { text = true }):wait()
-		return proc.code == 0, proc.stdout or "", proc.stderr or ""
-	end
+  local opts = require("opencode.config").opts
+  opts.ask.snacks.win.footer_keys = false
+  local default_start = opts.server.start
+  local owned = {}
 
-	function tmux.pane_pid(pane_id)
-		local ok, out = tmux.run({ "display-message", "-p", "-t", pane_id, "#{pane_pid}" })
-		if not ok then
-			return nil
-		end
+  local function target(backend, id, cwd, starting)
+    if id and (starting or backend.running(id, cwd)) then
+      return id
+    end
+    local match
+    for pane, info in pairs(backend.panes) do
+      if pane ~= id and not info.dead and backend.running(pane, cwd) then
+        if match then
+          return -- More than one candidate; do not guess.
+        end
+        match = pane
+      end
+    end
+    return match
+  end
 
-		local pid = tonumber(trim(out))
-		if not pid or pid <= 0 then
-			return nil
-		end
+  local function require_success(result, err)
+    if not result then
+      error(err and err ~= "" and err or "Could not control OpenCode pane", 0)
+    end
+    return result
+  end
 
-		return pid
-	end
+  local function control(action)
+    local backend, err = tmux_backend()
+    if not backend then
+      backend, err = rex_backend()
+    end
+    if err then
+      error(err, 0)
+    elseif not backend then
+      if action == "start" or action == "focus" then
+        default_start()
+      end
+      return
+    end
 
-	function tmux.kill_process_group(pid)
-		if not pid or pid <= 0 then
-			return false
-		end
+    local cwd = vim.uv.fs_realpath(vim.fn.getcwd())
+    if not cwd then
+      error("Cannot resolve the current directory", 0)
+    end
+    local key = backend.scope .. "\n" .. cwd
+    local entry = owned[key]
+    local info = entry and backend.panes[entry.id]
+    local id = info and info.child == entry.child and entry.id or nil
+    if action == "close" then
+      if id then
+        require_success(backend.close(id))
+      end
+      owned[key] = nil
+      return
+    end
 
-		local proc = vim.system({ "kill", "-TERM", "-" .. tostring(pid) }, { text = true }):wait()
-		return proc.code == 0
-	end
+    local starting = id and not info.dead and vim.uv.now() - entry.started < 2000
+    local pane = target(backend, id, cwd, starting)
+    if not pane then
+      entry = require_success(backend.start(cwd))
+      entry.started = vim.uv.now()
+      owned[key] = entry
+      pane, starting = entry.id, true
+    end
+    if action == "start" then
+      return
+    end
 
-	function tmux.orphan_pids_for_port()
-		local pids = {}
-		local proc = vim.system({ "ps", "-axo", "pid=,tty=,command=" }, { text = true }):wait()
-		if proc.code ~= 0 then
-			return pids
-		end
+    -- On a cold start, wait briefly for the TUI before sending any input.
+    if action == "prefix" and starting then
+      vim.wait(1500, function()
+        return backend.running(pane, cwd)
+      end, 100)
+    end
+    require_success(backend.focus(pane))
+    if action == "prefix" then
+      if backend.running(pane, cwd) then
+        require_success(backend.prefix(pane))
+      else
+        error("OpenCode TUI is not ready for its leader key", 0)
+      end
+    end
+  end
 
-		local port_string = tostring(port)
-		for line in (proc.stdout or ""):gmatch("[^\r\n]+") do
-			local pid_text, tty, command = line:match("^%s*(%d+)%s+(%S+)%s+(.+)$")
-			if pid_text and tty and command then
-				local executable = command:match("^%s*(%S+)")
-				local has_port = command:match("%-%-port%s+" .. port_string .. "%s")
-					or command:match("%-%-port%s+" .. port_string .. "$")
-					or command:match("%-%-port=" .. port_string .. "%s")
-					or command:match("%-%-port=" .. port_string .. "$")
-				local no_tty = tty:match("^%?+$") ~= nil
+  opts.server.start = function()
+    control("start")
+  end
 
-				if no_tty and has_port and executable and executable:match("opencode$") then
-					table.insert(pids, tonumber(pid_text))
-				end
-			end
-		end
+  local function map(mode, lhs, action, desc)
+    vim.keymap.set(mode, lhs, function()
+      local ok, err = pcall(control, action)
+      if not ok then
+        vim.notify(err, vim.log.levels.WARN, { title = "opencode.nvim" })
+      end
+    end, { silent = true, desc = desc })
+  end
 
-		return pids
-	end
-
-	function tmux.stop_orphans()
-		local count = 0
-		for _, pid in ipairs(tmux.orphan_pids_for_port()) do
-			local proc = vim.system({ "kill", "-TERM", tostring(pid) }, { text = true }):wait()
-			if proc.code == 0 then
-				count = count + 1
-			end
-		end
-		return count
-	end
-
-	function tmux.get_pane_id()
-		if tmux.pane_id then
-			local ok = select(1, tmux.run({ "list-panes", "-t", tmux.pane_id }))
-			if ok then
-				return tmux.pane_id
-			end
-			tmux.pane_id = nil
-		end
-
-		if not tmux.in_session() then
-			return nil
-		end
-
-		local ok, out = tmux.run({
-			"list-panes",
-			"-s",
-			"-F",
-			"#{pane_id}\t#{pane_current_command}\t#{pane_start_command}",
-		})
-		if not ok then
-			return nil
-		end
-
-		local port_pattern = "--port%s+" .. port
-		for line in out:gmatch("[^\r\n]+") do
-			local pane_id, pane_cmd, pane_start = line:match("([^\t]+)\t([^\t]*)\t(.*)")
-			if
-				pane_id
-				and pane_start:match(port_pattern)
-				and (pane_cmd == "opencode" or pane_start:match("opencode"))
-			then
-				tmux.pane_id = pane_id
-				return pane_id
-			end
-		end
-
-		return nil
-	end
-
-	function tmux.focus_pane(pane_id)
-		local ok_window, window_id = tmux.run({ "display-message", "-p", "-t", pane_id, "#{window_id}" })
-		if ok_window then
-			local target_window = trim(window_id)
-			if target_window ~= "" then
-				tmux.run({ "select-window", "-t", target_window })
-			end
-		end
-		tmux.run({ "select-pane", "-t", pane_id })
-	end
-
-	function tmux.start()
-		if not tmux.in_session() then
-			vim.notify("Not in tmux; unable to manage OpenCode pane.", vim.log.levels.WARN, { title = "opencode.nvim" })
-			return
-		end
-
-		local pane_id = tmux.get_pane_id()
-		if pane_id then
-			return
-		end
-
-		tmux.stop_orphans()
-
-		local ok, out, err = tmux.run({
-			"split-window",
-			"-h",
-			"-d",
-			"-p",
-			"38",
-			"-P",
-			"-F",
-			"#{pane_id}",
-			"-c",
-			vim.fn.getcwd(),
-			cmd,
-		})
-		if not ok then
-			vim.notify(
-				"Failed to start OpenCode tmux pane:\n" .. err,
-				vim.log.levels.ERROR,
-				{ title = "opencode.nvim" }
-			)
-			return
-		end
-
-		tmux.pane_id = trim(out)
-		if tmux.pane_id ~= "" then
-			tmux.run({ "set-option", "-t", tmux.pane_id, "-p", "allow-passthrough", "off" })
-		end
-	end
-
-	function tmux.stop()
-		local pane_id = tmux.get_pane_id()
-		if pane_id then
-			local pid = tmux.pane_pid(pane_id)
-			if pid then
-				tmux.kill_process_group(pid)
-			end
-
-			tmux.run({ "kill-pane", "-t", pane_id })
-			tmux.pane_id = nil
-		end
-
-		tmux.stop_orphans()
-	end
-
-	function tmux.toggle()
-		local pane_id = tmux.get_pane_id()
-		if not pane_id then
-			tmux.start()
-			pane_id = tmux.get_pane_id()
-			if not pane_id then
-				return
-			end
-			tmux.focus_pane(pane_id)
-			return
-		end
-
-		local ok, active = tmux.run({ "display-message", "-p", "#{pane_id}" })
-		if ok and trim(active) == pane_id then
-			tmux.run({ "last-pane" })
-		else
-			tmux.focus_pane(pane_id)
-		end
-	end
-
-	function tmux.send_prefix()
-		local pane_id = tmux.get_pane_id()
-		if not pane_id then
-			tmux.start()
-			pane_id = tmux.get_pane_id()
-			if not pane_id then
-				return
-			end
-		end
-
-		tmux.focus_pane(pane_id)
-		tmux.run({ "send-keys", "-t", pane_id, "C-x" })
-	end
-
-	function tmux.send_tab()
-		local pane_id = tmux.get_pane_id()
-		if not pane_id then
-			tmux.start()
-			pane_id = tmux.get_pane_id()
-			if not pane_id then
-				return
-			end
-		end
-
-		tmux.focus_pane(pane_id)
-		tmux.run({ "send-keys", "-t", pane_id, "Tab" })
-	end
-
-	function tmux.start_and_focus()
-		tmux.start()
-		local pane_id = tmux.get_pane_id()
-		if pane_id then
-			tmux.focus_pane(pane_id)
-		end
-	end
-
-	vim.g.opencode_opts = {
-		ask = {
-			snacks = {
-				win = {
-					footer_keys = false,
-				},
-			},
-		},
-		server = {
-			port = port,
-			start = tmux.start,
-			stop = tmux.stop,
-			toggle = tmux.toggle,
-			send_prefix = tmux.send_prefix,
-			send_tab = tmux.send_tab,
-			start_focus = tmux.start_and_focus,
-		},
-	}
+  map("n", "<leader>as", "focus", "Start or Focus OpenCode Pane")
+  map("n", "<leader>aK", "close", "Close Owned OpenCode Pane")
+  if (vim.env.TMUX_PANE or "") ~= "" or (vim.env.REX_BLOCK or "") ~= "" then
+    map({ "n", "x" }, "<C-x>", "prefix", "Forward OpenCode Leader")
+  end
 end
